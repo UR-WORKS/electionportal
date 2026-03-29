@@ -12,6 +12,7 @@ function createPrismaClient() {
     password: process.env.DB_PASSWORD ?? '',
     database: process.env.DB_NAME ?? 'election',
     port: Number(process.env.DB_PORT ?? 3306),
+    connectionLimit: 3,
   });
   return new PrismaClient({ adapter });
 }
