@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/auth-guard';
 export async function GET() {
   const s = await requireAdmin();
   if (!s) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const items = await prisma.constituency.findMany({ orderBy: { name: 'asc' } });
+  const items = await prisma.constituency.findMany({ orderBy: { id: 'asc' } });
   return NextResponse.json(items);
 }
 

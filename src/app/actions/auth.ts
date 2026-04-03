@@ -36,9 +36,9 @@ export async function login(
 
   const destination =
     user.role === 'BOOTH_ADMIN' ? '/dashboard/booth'
-    : user.role === 'PANCHAYAT_ADMIN' ? '/dashboard/panchayat'
-    : user.role === 'MANDAL_ADMIN' ? '/dashboard/mandal'
-    : '/admin';
+      : user.role === 'PANCHAYATH_ADMIN' ? '/dashboard/panchayath'
+        : user.role === 'MANDAL_ADMIN' ? '/dashboard/mandal'
+          : '/admin';
 
   redirect(destination);
 }

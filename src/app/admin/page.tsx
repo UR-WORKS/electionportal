@@ -6,18 +6,18 @@ export default async function AdminDashboard() {
   const session = await getSession();
   if (!session) redirect('/login');
 
-  const [parties, constituencies, panchayats, booths, users] = await Promise.all([
-    prisma.party.count(),
+  const [candidates, constituencies, panchayath, booths, users] = await Promise.all([
+    prisma.candidate.count(),
     prisma.constituency.count(),
-    prisma.panchayat.count(),
+    prisma.panchayath.count(),
     prisma.booth.count(),
     prisma.user.count(),
   ]);
 
   const stats = [
-    { label: 'Parties', count: parties, href: '/admin/parties', color: 'emerald', icon: '🏛️' },
+    { label: 'Candidates', count: candidates, href: '/admin/candidates', color: 'emerald', icon: '🏛️' },
     { label: 'Constituencies', count: constituencies, href: '/admin/constituencies', color: 'blue', icon: '🗺️' },
-    { label: 'Panchayats', count: panchayats, href: '/admin/panchayats', color: 'indigo', icon: '🏘️' },
+    { label: 'Panchayaths', count: panchayath, href: '/admin/panchayaths', color: 'indigo', icon: '🏘️' },
     { label: 'Booths', count: booths, href: '/admin/booths', color: 'teal', icon: '📍' },
     { label: 'Admin Users', count: users, href: '/admin/users', color: 'sky', icon: '👥' },
   ];
@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
           {[
             { label: 'User Control', icon: '🛡️', href: '/admin/users', desc: 'Manage system access and roles.' },
             { label: 'Election Structure', icon: '🗺️', href: '/admin/constituencies', desc: 'Configure regional mappings.' },
-            { label: 'Political Parties', icon: '🏛️', href: '/admin/parties', desc: 'Define symbols and abbreviations.' },
+            { label: 'Candidates', icon: '🏗️', href: '/admin/candidates', desc: 'Define candidates and abbreviations.' },
           ].map((action) => (
             <a
               key={action.label}

@@ -12,10 +12,10 @@ async function resolveBoothAdmin() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, boothId: true, partyId: true },
+    select: { id: true, boothId: true, candidateId: true },
   });
-  if (!user || !user.boothId || !user.partyId) return null;
-  return user as { id: number; boothId: number; partyId: number };
+  if (!user || !user.boothId || !user.candidateId) return null;
+  return user as { id: number; boothId: number; candidateId: number };
 }
 
 /** 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   const marks = await prisma.voterMark.findMany({
     where: { voter: { boothId } },
     select: {
-      partyId: true,
+      candidateId: true,
       hasVoted: true,
       voter: { select: { serialNumber: true } }
     },
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
   const formatted = marks.map((m) => ({
     serialNumber: m.voter.serialNumber,
-    partyId: m.partyId,
+    candidateId: m.candidateId,
     hasVoted: m.hasVoted
   }));
 
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await request.json();
-  const { action, serialNumber, boothId, targetPartyId } = body;
+  const { action, serialNumber, boothId, targetCandidateId } = body;
 
   if (!action || !serialNumber || !boothId) {
     return NextResponse.json({ error: 'action, serialNumber, and boothId are required.' }, { status: 400 });
@@ -78,59 +78,70 @@ export async function POST(request: Request) {
   });
 
   if (action === 'AFFILIATE') {
-    if (!targetPartyId) return NextResponse.json({ error: 'targetPartyId required for AFFILIATE' }, { status: 400 });
+    if (!targetCandidateId) return NextResponse.json({ error: 'targetCandidateId required for AFFILIATE' }, { status: 400 });
     
     // Clear and set new affiliation for this admin group
     await prisma.voterMark.deleteMany({
-      where: { voterId: voter.id, user: { partyId: user.partyId } }
+      where: { voterId: voter.id, user: { candidateId: user.candidateId } }
     });
     
     const mark = await prisma.voterMark.create({
       data: {
         voterId: voter.id,
-        partyId: Number(targetPartyId),
+        candidateId: Number(targetCandidateId),
         markedBy: user.id,
-        // hasVoted remains default or existing if we can toggle? 
-        // For simple workflow, we'll keep existing hasVoted if it exists elsewhere?
-        // No, current schema is unique(voterId, partyId).
-        // If I change affiliation from A to B, does the 'voted' status carry?
-        // Usually, 'voted' is for the person, but schema is per-party.
-        // We'll reset it to false for the new affiliation as it's a "predicted" mark.
       }
     });
+
+    // Smart Refresh Trigger
+    await prisma.dashboardPulse.upsert({
+      where: { id: 1 },
+      update: { lastPulse: new Date() },
+      create: { id: 1, lastPulse: new Date() }
+    });
+
     return NextResponse.json(mark, { status: 201 });
   }
 
   if (action === 'POLL') {
     // Already mapped -> Toggle or set hasVoted
     const existingMark = await prisma.voterMark.findFirst({
-        where: { voterId: voter.id, user: { partyId: user.partyId } }
+        where: { voterId: voter.id, user: { candidateId: user.candidateId } }
     });
 
-    if (!existingMark) return NextResponse.json({ error: 'Not mapped to your party' }, { status: 400 });
+    if (!existingMark) return NextResponse.json({ error: 'Not mapped to your candidate' }, { status: 400 });
 
     const updated = await prisma.voterMark.update({
       where: { id: existingMark.id },
       data: { hasVoted: !existingMark.hasVoted }
     });
+
     return NextResponse.json(updated);
   }
 
   if (action === 'MAP_AND_POLL') {
-    if (!targetPartyId) return NextResponse.json({ error: 'targetPartyId required for MAP_AND_POLL' }, { status: 400 });
+    if (!targetCandidateId) return NextResponse.json({ error: 'targetCandidateId required for MAP_AND_POLL' }, { status: 400 });
 
     await prisma.voterMark.deleteMany({
-      where: { voterId: voter.id, user: { partyId: user.partyId } }
+      where: { voterId: voter.id, user: { candidateId: user.candidateId } }
     });
 
     const mark = await prisma.voterMark.create({
       data: {
         voterId: voter.id,
-        partyId: Number(targetPartyId),
+        candidateId: Number(targetCandidateId),
         markedBy: user.id,
         hasVoted: true
       }
     });
+
+    // Smart Refresh Trigger
+    await prisma.dashboardPulse.upsert({
+      where: { id: 1 },
+      update: { lastPulse: new Date() },
+      create: { id: 1, lastPulse: new Date() }
+    });
+
     return NextResponse.json(mark, { status: 201 });
   }
 

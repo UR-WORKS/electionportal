@@ -22,47 +22,48 @@ export function DashboardLayoutClient({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#EEF2F6] text-gray-900 flex flex-col font-sans">
       {/* ── Header ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm shadow-gray-900/5">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-          <div className="flex justify-between items-center h-20">
-            {/* Dynamic Brand/Admin Info */}
+      <header className="sticky top-0 z-40 w-full bg-[#0B1229] shadow-lg shadow-black/10">
+        <div className="mx-auto px-6 lg:px-12">
+          <div className="flex justify-between items-center h-24">
+            {/* Brand Area */}
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20">
-                E
-              </div>
-              <div className="flex flex-col -space-y-1">
-                <span className="text-lg font-black tracking-tight text-gray-900 uppercase">
+              <div className="flex flex-col">
+                <span className="text-3xl font-black tracking-tight text-white uppercase leading-none">
                   {headerTitle}
                 </span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  {headerSubTitle} · ElectionPortal
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                  IUML · REGIONAL ACCESS · ELECTIONPORTAL
                 </span>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`text-sm font-bold transition-all px-4 py-2.5 rounded-xl border-2 ${
-                    pathname === item.href
-                      ? 'bg-emerald-600/5 text-emerald-600 border-emerald-500/20'
-                      : 'text-gray-500 border-transparent hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <span className="mr-2 text-base">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
-              <div className="h-6 w-px bg-gray-100 mx-3" />
+            <nav className="hidden md:flex items-center gap-8">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative text-sm font-bold transition-all py-1 ${
+                      isActive
+                        ? 'text-white'
+                        : 'text-gray-300 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                    {isActive && (
+                      <span className="absolute -bottom-2 left-0 right-0 h-[3px] bg-cyan-400 rounded-full" />
+                    )}
+                  </Link>
+                );
+              })}
               <form action={logout}>
                 <button
                   type="submit"
-                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all active:scale-95"
+                  className="text-sm font-bold text-gray-300 hover:text-white transition-all ml-4"
                 >
                   Sign Out
                 </button>
@@ -73,7 +74,7 @@ export function DashboardLayoutClient({
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center p-3 rounded-2xl text-gray-900 bg-gray-100 hover:bg-gray-200 focus:outline-none transition-all active:scale-95"
+                className="inline-flex items-center justify-center p-3 rounded-2xl text-white bg-white/5 hover:bg-white/10 focus:outline-none transition-all"
               >
                 <span className="sr-only">Open main menu</span>
                 <svg className={`${mobileMenuOpen ? 'hidden' : 'block'} h-6 w-6`} fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
@@ -88,29 +89,31 @@ export function DashboardLayoutClient({
         </div>
 
         {/* Mobile Navigation Drawer */}
-        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden border-t border-gray-100 bg-white animate-in slide-in-from-top duration-300`}>
+        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden border-t border-white/5 bg-[#0B1229] animate-in slide-in-from-top duration-300`}>
           <div className="px-6 pt-4 pb-8 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-base font-black transition-all border-2 ${
-                  pathname === item.href
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20'
-                    : 'text-gray-500 border-gray-50 bg-gray-50 hover:bg-gray-100 hover:text-gray-900'
-                }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-4 px-5 py-4 rounded-xl text-base font-bold transition-all ${
+                    isActive
+                      ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20'
+                      : 'text-gray-300 hover:bg-white/5'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
             <form action={logout} className="pt-2">
               <button
                 type="submit"
-                className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-base font-black text-gray-500 bg-gray-50 hover:bg-red-50 hover:text-red-500 transition-all active:scale-95"
+                className="w-full flex items-center gap-4 px-5 py-4 rounded-xl text-base font-bold text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-all"
               >
-                <span className="text-xl">🚪</span> Sign Out
+                Sign Out
               </button>
             </form>
           </div>
@@ -119,15 +122,15 @@ export function DashboardLayoutClient({
 
       {/* ── Main Content Area ─────────────────────────────────────────── */}
       <main className="flex-1">
-        <div className="max-w-7xl mx-auto py-10 px-6 sm:px-8 lg:px-10">
+        <div className="mx-auto py-12 px-6 lg:px-12">
           {children}
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-8 bg-white border-t border-gray-100 mt-10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-          <p className="text-center text-[10px] font-bold text-gray-300 tracking-[0.3em] uppercase">
+      <footer className="py-12 border-t border-gray-200">
+        <div className="mx-auto px-12">
+          <p className="text-center text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">
             ElectionPortal · Secure Voter Management
           </p>
         </div>

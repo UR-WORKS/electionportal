@@ -5,7 +5,7 @@ import { Role } from '@/generated/prisma/client';
 
 /**
  * Verifies the current session and ensures the user has one of the allowed roles.
- * Returns the user record with their administrative context (booth, panchayat, or constituency).
+ * Returns the user record with their administrative context (booth, panchayath, or constituency).
  */
 export async function getDashboardUser(allowedRoles: Role[]) {
   const cookieStore = await cookies();
@@ -19,9 +19,9 @@ export async function getDashboardUser(allowedRoles: Role[]) {
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     include: {
-      party: { select: { name: true, abbrev: true } },
+      candidate: { select: { name: true, abbrev: true } },
       booth: { select: { number: true, name: true, totalVoters: true } },
-      panchayat: { select: { name: true, constituency: { select: { name: true } } } },
+      panchayath: { select: { name: true, constituency: { select: { name: true } } } },
       constituency: { select: { name: true } },
     },
   });

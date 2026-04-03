@@ -12,15 +12,15 @@ async function resolveBoothAdmin() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, boothId: true, partyId: true },
+    select: { id: true, boothId: true, candidateId: true },
   });
-  if (!user || !user.boothId || !user.partyId) return null;
-  return user as { id: number, boothId: number, partyId: number };
+  if (!user || !user.boothId || !user.candidateId) return null;
+  return user as { id: number, boothId: number, candidateId: number };
 }
 
 /** 
  * POST /api/voters/mark/vote
- * Toggles the 'hasVoted' status for a voter's mark for the current admin's party.
+ * Toggles the 'hasVoted' status for a voter's mark for the current admin's candidate.
  */
 export async function POST(request: Request) {
   const user = await resolveBoothAdmin();
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
   // Toggle or Create
   const existingMark = await prisma.voterMark.findUnique({
-    where: { voterId_partyId: { voterId: voter.id, partyId: user.partyId } }
+    where: { voterId_candidateId: { voterId: voter.id, candidateId: user.candidateId } }
   });
 
   if (existingMark) {
@@ -58,11 +58,11 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ action: 'toggled', hasVoted: updated.hasVoted });
   } else {
-    // Create new mark for admin's party as "Voted" (it acts as a default mapping too)
+    // Create new mark for admin's candidate as "Voted" (it acts as a default mapping too)
     const newMark = await prisma.voterMark.create({
       data: {
         voterId: voter.id,
-        partyId: user.partyId,
+        candidateId: user.candidateId,
         markedBy: user.id,
         hasVoted: true
       }

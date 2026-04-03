@@ -7,18 +7,18 @@ import { logout } from '@/app/actions/auth';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard/booth', icon: '📊' },
-  { label: 'Party Update', href: '/dashboard/booth/party-update', icon: '📝' },
+  { label: 'Candidate Update', href: '/dashboard/booth/candidate-update', icon: '📝' },
   { label: 'Election Counting', href: '/dashboard/booth/election-counting', icon: '🗳️' },
 ];
 
 export function BoothLayoutClient({ 
   children,
   boothInfo,
-  partyAbbrev
+  candidateAbbrev
 }: { 
   children: React.ReactNode;
   boothInfo: { number: number; name: string | null };
-  partyAbbrev: string;
+  candidateAbbrev: string;
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,12 +34,12 @@ export function BoothLayoutClient({
               <div className="h-10 w-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-500/20">
                 E
               </div>
-              <div className="flex flex-col -space-y-1">
-                <span className="text-lg font-black tracking-tight text-gray-900 uppercase">
-                  Booth {boothInfo.number} {boothInfo.name && `· ${boothInfo.name}`}
+              <div className="flex flex-col -space-y-0.5">
+                <span className="text-base font-black tracking-tight text-gray-900 uppercase">
+                  Booth {boothInfo.number}
                 </span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  {partyAbbrev} · ElectionPortal
+                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                  {candidateAbbrev} · Portal
                 </span>
               </div>
             </div>

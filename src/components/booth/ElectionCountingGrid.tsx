@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { VoterMarkModal } from './VoterMarkModal';
 
-type Party = { id: number; name: string; abbrev: string };
-type VoterMark = { serialNumber: number; partyId: number; hasVoted: boolean };
+type Candidate = { id: number; name: string; abbrev: string };
+type VoterMark = { serialNumber: number; candidateId: number; hasVoted: boolean };
 
 function useColumns() {
   const [cols, setCols] = useState(5);
@@ -24,18 +24,18 @@ export function ElectionCountingGrid({
   boothId,
   totalVoters,
   initialMarks,
-  adminPartyId,
-  parties
+  adminCandidateId,
+  candidates
 }: {
   boothId: number;
   totalVoters: number;
   initialMarks: VoterMark[];
-  adminPartyId: number;
-  parties: Party[];
+  adminCandidateId: number;
+  candidates: Candidate[];
 }) {
   const cols = useColumns();
-  const [marks, setMarks] = useState<Record<number, { partyId: number; voted: boolean }>>(
-    initialMarks.reduce((acc, m) => ({ ...acc, [m.serialNumber]: { partyId: m.partyId, voted: m.hasVoted } }), {})
+  const [marks, setMarks] = useState<Record<number, { candidateId: number; voted: boolean }>>(
+    initialMarks.reduce((acc, m) => ({ ...acc, [m.serialNumber]: { candidateId: m.candidateId, voted: m.hasVoted } }), {})
   );
   const [pending, setPending] = useState<Set<number>>(new Set());
   const [modalVoter, setModalVoter] = useState<number | null>(null);
@@ -123,7 +123,7 @@ export function ElectionCountingGrid({
     }
   };
 
-  const handleMapAndVote = async (partyId: number) => {
+  const handleMapAndVote = async (candidateId: number) => {
     if (!modalVoter) return;
     setSaving(true);
     try {
@@ -134,11 +134,11 @@ export function ElectionCountingGrid({
           action: 'MAP_AND_POLL',
           serialNumber: modalVoter,
           boothId,
-          targetPartyId: partyId
+          targetCandidateId: candidateId
         }),
       });
       if (res.ok) {
-        setMarks(prev => ({ ...prev, [modalVoter]: { partyId, voted: true } }));
+        setMarks(prev => ({ ...prev, [modalVoter]: { candidateId, voted: true } }));
         showToast(`Voter ${modalVoter} mapped & marked polled.`);
         setModalVoter(null);
       } else showToast('Mapping failed.', 'error');
@@ -267,8 +267,8 @@ export function ElectionCountingGrid({
       {modalVoter && (
         <VoterMarkModal
           serialNumber={modalVoter}
-          parties={parties}
-          initialPartyId={adminPartyId}
+          candidates={candidates}
+          initialCandidateId={adminCandidateId}
           onSave={handleMapAndVote}
           onCancel={() => setModalVoter(null)}
           isSaving={saving}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-type VoterMark = { serialNumber: number; partyId: number; partyAbbrev: string; hasVoted: boolean };
+type VoterMark = { serialNumber: number; candidateId: number; candidateAbbrev: string; hasVoted: boolean };
 
 function useColumns() {
   const [cols, setCols] = useState(5);
@@ -23,7 +23,7 @@ export function ReadOnlyVoterGrid({
   marks
 }: {
   totalVoters: number;
-  marks: Record<number, { partyAbbrev: string; voted: boolean }>;
+  marks: Record<number, { candidateAbbrev: string; voted: boolean }>;
 }) {
   const cols = useColumns();
 
@@ -71,7 +71,7 @@ export function ReadOnlyVoterGrid({
               </span>
               {isMapped && (
                 <span className={`text-[8px] font-black uppercase tracking-tighter ${hasVoted ? 'text-emerald-100/70' : 'text-indigo-400'}`}>
-                   {m.partyAbbrev}
+                   {m.candidateAbbrev}
                 </span>
               )}
               {isMapped && !hasVoted && (

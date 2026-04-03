@@ -15,14 +15,14 @@ export default async function MandalLayout({
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard/mandal', icon: '📊' },
-    { label: 'Manage Panchayats', href: '/dashboard/mandal/manage-panchayats', icon: '🏘️' },
+    { label: 'Manage panchayaths', href: '/dashboard/mandal/manage-panchayaths', icon: '🏘️' },
   ];
 
-  const headerTitle = user.constituency?.name || 'Mandal Admin';
-  const headerSubTitle = `${user.party?.abbrev} · Regional Access`;
+  const headerTitle = user.constituency?.name || 'Mandalam Admin';
+  const headerSubTitle = `${user.candidate?.abbrev} · Regional Access`;
 
   return (
-    <DashboardLayoutClient 
+    <DashboardLayoutClient
       navItems={navItems}
       headerTitle={headerTitle}
       headerSubTitle={headerSubTitle}

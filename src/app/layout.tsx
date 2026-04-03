@@ -12,10 +12,14 @@ export const metadata: Metadata = {
   title: 'Election Portal | Secure & Transparent',
   description: 'A modern, secure, and transparent platform for digital elections.',
   keywords: 'election, portal, digital voting, secure, transparent',
+  icons: {
+    icon: '/fav.png',
+    apple: '/fav.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ElectionPortal',
+    title: 'Election Portal',
   },
 };
 

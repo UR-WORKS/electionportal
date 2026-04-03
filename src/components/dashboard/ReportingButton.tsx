@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 
 type ReportData = {
   title: string;
-  partyName: string;
+  candidateName: string;
   metrics: {
     totalElectorate: number;
     totalPolled: number;
@@ -39,7 +39,7 @@ export function ReportingButton({ data }: { data: ReportData }) {
       doc.setFontSize(10);
       doc.setTextColor(107, 114, 128); // Gray-400
       doc.text(`Report Generated At: ${timestamp}`, 14, 30);
-      doc.text(`Political Party: ${data.partyName}`, 14, 36);
+      doc.text(`Candidate: ${data.candidateName}`, 14, 36);
 
       // Summary Metrics Cards (Drawn as a table for layout)
       autoTable(doc, {

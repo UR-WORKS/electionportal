@@ -16,8 +16,8 @@ const navItems = [
     ),
   },
   {
-    label: 'Parties',
-    href: '/admin/parties',
+    label: 'Candidates',
+    href: '/admin/candidates',
     icon: (
       <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -34,8 +34,8 @@ const navItems = [
     ),
   },
   {
-    label: 'Panchayats',
-    href: '/admin/panchayats',
+    label: 'Panchayaths',
+    href: '/admin/panchayaths',
     icon: (
       <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -77,11 +77,10 @@ function NavList({ onItemClick }: { onItemClick?: () => void }) {
             key={item.href}
             href={item.href}
             onClick={onItemClick}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-              isActive
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 active:scale-95'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${isActive
+              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 active:scale-95'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+              }`}
           >
             {item.icon}
             {item.label}
@@ -165,9 +164,8 @@ export function AdminShell({
 
       {/* ── Mobile slide-out sidebar ──────────────────────────────────── */}
       <aside
-        className={`fixed inset-y-0 left-0 w-72 flex flex-col bg-white border-r border-gray-100 z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) md:hidden ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        } shadow-2xl shadow-gray-900/10`}
+        className={`fixed inset-y-0 left-0 w-72 flex flex-col bg-white border-r border-gray-100 z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          } shadow-2xl shadow-gray-900/10`}
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">

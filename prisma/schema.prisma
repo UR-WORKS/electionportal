@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -7,98 +7,109 @@ datasource db {
   provider = "mysql"
 }
 
-enum Role {
-  SUPER_ADMIN
-  MANDAL_ADMIN
-  PANCHAYAT_ADMIN
-  BOOTH_ADMIN
-}
+model Candidate {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  abbrev String @unique
+  users  User[]
+  marks  VoterMark[]
 
-model Party {
-  id        Int         @id @default(autoincrement())
-  name      String      @unique
-  abbrev    String      @unique
-  users     User[]
-  marks     VoterMark[] 
-  
-  @@map("party")
+  @@map("candidate")
 }
 
 model Constituency {
-  id         Int         @id @default(autoincrement())
-  name       String      @unique
-  panchayats Panchayat[]
-  users      User[]
+  id     Int    @id @default(autoincrement())
+  name   String @unique(map: "Constituency_name_key")
+  panchayaths Panchayath[]
+  users  User[]
 
   @@map("constituency")
 }
 
-model Panchayat {
-  id             Int          @id @default(autoincrement())
+model Panchayath {
+  id             Int    @id @default(autoincrement())
   name           String
   constituencyId Int
   constituency   Constituency @relation(fields: [constituencyId], references: [id])
-  booths          Booth[]
+  booths         Booth[]
   users          User[]
 
-  @@map("panchayat")
+  @@index([constituencyId], map: "Panchayat_constituencyId_fkey")
+  @@map("panchayath")
 }
 
 model Booth {
-  id          Int       @id @default(autoincrement())
-  number      Int
-  name        String?
-  panchayatId Int
-  panchayat   Panchayat @relation(fields: [panchayatId], references: [id])
-  totalVoters Int       @default(0) 
-  voters      Voter[]
-  users       User[]
+  id           Int     @id @default(autoincrement())
+  number       Int
+  name         String?
+  panchayathId Int
+  panchayath   Panchayath @relation(fields: [panchayathId], references: [id])
+  totalVoters  Int     @default(0)
+  users        User[]
+  voters       Voter[]
 
+  @@index([panchayathId], map: "Booth_panchayatId_fkey")
   @@map("booth")
 }
 
 model User {
-  id             Int           @id @default(autoincrement())
-  username       String        @unique
-  email          String        @unique
+  id             Int    @id @default(autoincrement())
+  username       String @unique(map: "User_username_key")
+  email          String @unique(map: "User_email_key")
   passwordHash   String
   name           String
   role           Role
-  partyId        Int?
-  party          Party?        @relation(fields: [partyId], references: [id])
+  candidateId    Int?
+  candidate      Candidate? @relation(fields: [candidateId], references: [id])
   constituencyId Int?
   constituency   Constituency? @relation(fields: [constituencyId], references: [id])
-  panchayatId    Int?
-  panchayat      Panchayat?    @relation(fields: [panchayatId], references: [id])
-  boothId         Int?
-  booth           Booth?         @relation(fields: [boothId], references: [id])
-  marksMade      VoterMark[]   
+  panchayathId   Int?
+  panchayath     Panchayath? @relation(fields: [panchayathId], references: [id])
+  boothId        Int?
+  booth          Booth? @relation(fields: [boothId], references: [id])
+  voterMarks     VoterMark[] @relation("MarkedByAdmin")
 
+  @@index([boothId], map: "User_boothId_fkey")
+  @@index([constituencyId], map: "User_constituencyId_fkey")
+  @@index([panchayathId], map: "User_panchayatId_fkey")
+  @@index([candidateId], map: "User_partyId_fkey")
   @@map("user")
 }
 
 model Voter {
-  id           Int         @id @default(autoincrement())
-  serialNumber Int         
-  boothId       Int
-  booth         Booth        @relation(fields: [boothId], references: [id])
+  id           Int @id @default(autoincrement())
+  serialNumber Int
+  boothId      Int
+  booth        Booth @relation(fields: [boothId], references: [id])
   marks        VoterMark[]
-  
-  @@unique([serialNumber, boothId])
+
+  @@unique([serialNumber, boothId], map: "Voter_serialNumber_boothId_key")
+  @@index([boothId], map: "Voter_boothId_fkey")
   @@map("voter")
 }
 
 model VoterMark {
-  id        Int      @id @default(autoincrement())
-  voterId   Int
-  voter     Voter    @relation(fields: [voterId], references: [id])
-  partyId   Int
-  party     Party    @relation(fields: [partyId], references: [id])
-  markedBy  Int
-  user      User     @relation(fields: [markedBy], references: [id])
-  hasVoted  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  
-  @@unique([voterId, partyId]) 
+  id          Int      @id @default(autoincrement())
+  voterId     Int
+  voter       Voter    @relation(fields: [voterId], references: [id])
+  candidateId Int
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  markedBy    Int
+  user        User     @relation("MarkedByAdmin", fields: [markedBy], references: [id])
+  hasVoted    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@unique([voterId, candidateId], map: "VoterMark_voterId_candidateId_key")
+  @@index([markedBy], map: "VoterMark_markedBy_fkey")
+  @@index([candidateId], map: "VoterMark_partyId_fkey")
   @@map("votermark")
+}
+
+
+enum Role {
+  SUPER_ADMIN
+  MANDAL_ADMIN
+  PANCHAYATH_ADMIN
+  BOOTH_ADMIN
 }

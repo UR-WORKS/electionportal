@@ -15,19 +15,18 @@ export default async function BoothLayout({
     redirect('/login');
   }
 
-  // Fetch full user record with booth + party details
+  // Fetch full user record with booth + candidate details
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: {
-      boothId: true,
-      partyId: true,
+      candidateId: true,
       booth: {
         select: {
           number: true,
           name: true,
         },
       },
-      party: {
+      candidate: {
         select: {
           abbrev: true,
         },
@@ -35,16 +34,15 @@ export default async function BoothLayout({
     },
   });
 
-  if (!user?.booth || !user.party) {
-    // If not configured, the client or page will show the error state.
-    // For now, we'll just redirect to a configuration error or show a simple fallback.
+  if (!user?.booth || !user.candidate) {
+    // If not configured, show a simple fallback.
     return <div className="p-10 text-center font-bold text-gray-400">Account Configuration Error. Contact Admin.</div>;
   }
 
   return (
     <BoothLayoutClient 
       boothInfo={{ number: user.booth.number, name: user.booth.name }} 
-      partyAbbrev={user.party.abbrev}
+      candidateAbbrev={user.candidate.abbrev}
     >
       {children}
     </BoothLayoutClient>

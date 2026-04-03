@@ -24,9 +24,9 @@ type Props = {
   boothNumber: number;
   boothName: string | null;
   totalVoters: number;
-  partyName: string;
-  partyAbbrev: string;
-  panchayatName: string;
+  candidateName: string;
+  candidateAbbrev: string;
+  panchayathName: string;
   userName: string;
   initialMarked: number[];
 };
@@ -37,9 +37,9 @@ export function VoterGrid({
   boothNumber,
   boothName,
   totalVoters,
-  partyName,
-  partyAbbrev,
-  panchayatName,
+  candidateName,
+  candidateAbbrev,
+  panchayathName,
   userName,
   initialMarked,
 }: Props) {
@@ -108,13 +108,13 @@ export function VoterGrid({
         <div className="max-w-screen-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-              {partyAbbrev.slice(0, 2)}
+              {candidateAbbrev.slice(0, 2)}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white truncate">
-                Booth {boothNumber}{boothName ? ` · ${boothName}` : ''} — <span className="text-indigo-400">{partyName}</span>
+                Booth {boothNumber}{boothName ? ` · ${boothName}` : ''} — <span className="text-indigo-400">{candidateName}</span>
               </p>
-              <p className="text-xs text-slate-500 truncate">{panchayatName} · {userName}</p>
+              <p className="text-xs text-slate-500 truncate">{panchayathName} · {userName}</p>
             </div>
           </div>
 
@@ -181,35 +181,35 @@ export function VoterGrid({
           </div>
         ) : (
           <div
-              className="grid gap-1.5"
-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-            >
-              {Array.from({ length: totalVoters }, (_, i) => i + 1).map((serial) => {
-                const isMarked = marked.has(serial);
-                const isPending = pending.has(serial);
-                return (
-                  <button
-                    key={serial}
-                    onClick={() => toggle(serial)}
-                    disabled={isPending}
-                    title={`Voter #${serial}${isMarked ? ' — marked' : ''}`}
-                    className={`
+            className="grid gap-1.5"
+            style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+          >
+            {Array.from({ length: totalVoters }, (_, i) => i + 1).map((serial) => {
+              const isMarked = marked.has(serial);
+              const isPending = pending.has(serial);
+              return (
+                <button
+                  key={serial}
+                  onClick={() => toggle(serial)}
+                  disabled={isPending}
+                  title={`Voter #${serial}${isMarked ? ' — marked' : ''}`}
+                  className={`
                       relative aspect-square rounded-md text-xs font-mono font-medium
                       transition-all duration-150 select-none
                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 focus:ring-offset-slate-950
                       ${isPending
-                        ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400 cursor-wait animate-pulse'
-                        : isMarked
+                      ? 'bg-amber-500/20 border border-amber-500/50 text-amber-400 cursor-wait animate-pulse'
+                      : isMarked
                         ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30 active:scale-95'
                         : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-slate-200 active:scale-95'
-                      }
+                    }
                     `}
-                  >
-                    {serial}
-                  </button>
-                );
-              })}
-            </div>
+                >
+                  {serial}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

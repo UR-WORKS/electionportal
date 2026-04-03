@@ -6,11 +6,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   const s = await requireAdmin();
   if (!s) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { id } = await params;
-  const { number, name, totalVoters, panchayatId } = await req.json();
+  const { number, name, totalVoters, panchayathId } = await req.json();
   try {
     const item = await prisma.booth.update({
       where: { id: Number(id) },
-      data: { number: Number(number), name: name?.trim() || null, totalVoters: Number(totalVoters) || 0, panchayatId: Number(panchayatId) },
+      data: { number: Number(number), name: name?.trim() || null, totalVoters: Number(totalVoters) || 0, panchayathId: Number(panchayathId) },
     });
     return NextResponse.json(item);
   } catch {

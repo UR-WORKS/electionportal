@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { VoterMarkModal } from './VoterMarkModal';
 
-type Party = { id: number; name: string; abbrev: string };
-type VoterMark = { serialNumber: number; partyId: number; hasVoted: boolean };
+type Candidate = { id: number; name: string; abbrev: string };
+type VoterMark = { serialNumber: number; candidateId: number; hasVoted: boolean };
 
 function useColumns() {
   const [cols, setCols] = useState(5);
@@ -24,16 +24,16 @@ export function PartyUpdateGrid({
   boothId,
   totalVoters,
   initialMarks,
-  parties
+  candidates
 }: {
   boothId: number;
   totalVoters: number;
   initialMarks: VoterMark[];
-  parties: Party[];
+  candidates: Candidate[];
 }) {
   const cols = useColumns();
   const [marks, setMarks] = useState<Record<number, number>>(
-    initialMarks.reduce((acc, m) => ({ ...acc, [m.serialNumber]: m.partyId }), {})
+    initialMarks.reduce((acc, m) => ({ ...acc, [m.serialNumber]: m.candidateId }), {})
   );
   const [modalVoter, setModalVoter] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -53,7 +53,7 @@ export function PartyUpdateGrid({
     setToast({ message, type });
   };
 
-  const handleSaveAffiliation = async (partyId: number) => {
+  const handleSaveAffiliation = async (candidateId: number) => {
     if (!modalVoter) return;
     setSaving(true);
     try {
@@ -64,11 +64,11 @@ export function PartyUpdateGrid({
           action: 'AFFILIATE',
           serialNumber: modalVoter,
           boothId,
-          targetPartyId: Number(partyId)
+          targetCandidateId: Number(candidateId)
         }),
       });
       if (res.ok) {
-        setMarks(prev => ({ ...prev, [modalVoter!]: Number(partyId) }));
+        setMarks(prev => ({ ...prev, [modalVoter!]: Number(candidateId) }));
         showToast(`Voter #${modalVoter} mapped successfully.`);
         setModalVoter(null);
       } else showToast('Mapping failed.', 'error');
@@ -98,7 +98,7 @@ export function PartyUpdateGrid({
       <div className="flex flex-col gap-8 px-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Pre-Election Mapping</h2>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Map your booth&apos;s political landscape by assigning predicted affiliations.</p>
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Map your booth&apos;s political landscape by assigning predicted candidate affiliations.</p>
         </div>
 
         {/* Search Input Area */}
@@ -110,7 +110,9 @@ export function PartyUpdateGrid({
               </svg>
             </span>
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="Search Voter Serial Number..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -136,8 +138,8 @@ export function PartyUpdateGrid({
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
       >
         {filteredVoters.map((serial) => {
-          const partyId = marks[serial];
-          const party = parties.find(p => p.id === partyId);
+          const candidateId = marks[serial];
+          const candidate = candidates.find(c => c.id === candidateId);
 
           return (
             <button
@@ -147,16 +149,16 @@ export function PartyUpdateGrid({
                 relative aspect-square rounded-[1.25rem] text-[0.65rem] font-black
                 transition-all duration-300 flex flex-col items-center justify-center
                 active:scale-90 border-2
-                ${partyId
+                ${candidateId
                   ? 'bg-white border-indigo-200 text-indigo-600 hover:border-indigo-400 shadow-xl shadow-indigo-600/5'
                   : 'bg-white border-gray-300 text-slate-700 font-semibold hover:bg-gray-50 hover:border-gray-400'
                 }
               `}
             >
               #{serial}
-              {party && (
+              {candidate && (
                 <span className="mt-1 leading-none text-[0.6rem] uppercase tracking-widest text-gray-900">
-                  {party.abbrev}
+                  {candidate.abbrev}
                 </span>
               )}
             </button>
@@ -172,8 +174,8 @@ export function PartyUpdateGrid({
       {modalVoter && (
         <VoterMarkModal
           serialNumber={modalVoter}
-          parties={parties}
-          initialPartyId={marks[modalVoter]}
+          candidates={candidates}
+          initialCandidateId={marks[modalVoter]}
           onSave={handleSaveAffiliation}
           onCancel={() => setModalVoter(null)}
           isSaving={saving}

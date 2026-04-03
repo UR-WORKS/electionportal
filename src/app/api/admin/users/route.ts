@@ -9,12 +9,12 @@ export async function GET() {
   const users = await prisma.user.findMany({
     select: {
       id: true, username: true, name: true, email: true, role: true,
-      party: { select: { id: true, name: true } },
+      candidate: { select: { id: true, name: true } },
       constituency: { select: { id: true, name: true } },
-      panchayat: { select: { id: true, name: true } },
+      panchayath: { select: { id: true, name: true } },
       booth: { select: { id: true, number: true, name: true } },
     },
-    orderBy: { name: 'asc' },
+    orderBy: { id: 'asc' },
   });
   return NextResponse.json(users);
 }
@@ -23,11 +23,11 @@ export async function POST(request: Request) {
   const s = await requireAdmin();
   if (!s) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { username, name, password, role, partyId, constituencyId, panchayatId, boothId } = await request.json();
+  const { username, name, password, role, candidateId, constituencyId, panchayathId, boothId } = await request.json();
   if (!username || !name || !password || !role) {
     return NextResponse.json({ error: 'Username, name, password and role are required.' }, { status: 400 });
   }
-  if (!['MANDAL_ADMIN', 'PANCHAYAT_ADMIN', 'BOOTH_ADMIN'].includes(role)) {
+  if (!['MANDAL_ADMIN', 'PANCHAYATH_ADMIN', 'BOOTH_ADMIN'].includes(role)) {
     return NextResponse.json({ error: 'Invalid role.' }, { status: 400 });
   }
 
@@ -40,9 +40,9 @@ export async function POST(request: Request) {
         email: `${username.trim()}@election.local`, // auto-generate email
         passwordHash,
         role,
-        partyId: partyId ? Number(partyId) : null,
+        candidateId: candidateId ? Number(candidateId) : null,
         constituencyId: constituencyId ? Number(constituencyId) : null,
-        panchayatId: panchayatId ? Number(panchayatId) : null,
+        panchayathId: panchayathId ? Number(panchayathId) : null,
         boothId: boothId ? Number(boothId) : null,
       },
     });

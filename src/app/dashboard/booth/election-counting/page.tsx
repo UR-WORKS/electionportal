@@ -9,26 +9,26 @@ export default async function ElectionCountingPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, boothId: true, partyId: true }
+    select: { id: true, boothId: true, candidateId: true }
   });
 
   if (!user?.boothId) return <div>Booth not assigned.</div>;
 
-  const [totalVoters, parties, initialMarks] = await Promise.all([
+  const [totalVoters, candidates, initialMarks] = await Promise.all([
     prisma.booth.findUnique({ where: { id: user.boothId }, select: { totalVoters: true } }),
-    prisma.party.findMany({ select: { id: true, name: true, abbrev: true } }),
+    prisma.candidate.findMany({ select: { id: true, name: true, abbrev: true } }),
     prisma.voterMark.findMany({
       where: { 
         voter: { boothId: user.boothId },
-        user: { partyId: user.partyId } // Filter to our party's effort
+        user: { candidateId: user.candidateId } // Filter to our candidate's effort
       },
-      select: { voter: { select: { serialNumber: true } }, partyId: true, hasVoted: true }
+      select: { voter: { select: { serialNumber: true } }, candidateId: true, hasVoted: true }
     })
   ]);
 
   const formattedMarks = initialMarks.map(m => ({
     serialNumber: m.voter.serialNumber,
-    partyId: m.partyId,
+    candidateId: m.candidateId,
     hasVoted: m.hasVoted
   }));
 
@@ -44,8 +44,8 @@ export default async function ElectionCountingPage() {
         boothId={user.boothId}
         totalVoters={totalVoters?.totalVoters ?? 0}
         initialMarks={formattedMarks}
-        adminPartyId={user.partyId!}
-        parties={parties}
+        adminCandidateId={user.candidateId!}
+        candidates={candidates}
       />
     </div>
   );

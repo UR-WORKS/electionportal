@@ -3,46 +3,76 @@
 export function PerformanceAnalytics({ 
   polled, 
   total, 
-  label = "Our Party Polled"
+  label = "CANDIDATE VS ELECTORATE"
 }: { 
   polled: number; 
   total: number; 
   label?: string;
 }) {
   const percentage = total > 0 ? (polled / total) * 100 : 0;
-  const isHigh = percentage > 50;
-  
-  return (
-    <div className="p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-500 overflow-hidden relative group">
-      {/* Decorative Background Blob */}
-      <div className={`absolute -right-10 -top-10 h-40 w-40 rounded-full blur-3xl opacity-10 transition-all duration-700 group-hover:scale-150 ${isHigh ? 'bg-emerald-500' : 'bg-blue-500'}`} />
-      
-      <div className="relative z-10 space-y-6">
-        <div className="flex justify-between items-end">
-          <div className="space-y-1">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">{label}</h3>
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-gray-900 tracking-tighter">{polled.toLocaleString()}</span>
-              <span className="text-sm font-bold text-gray-300 uppercase italic">/ {total.toLocaleString()}</span>
-            </div>
-          </div>
-          <div className={`text-3xl font-black tracking-tighter ${isHigh ? 'text-emerald-600' : 'text-blue-600'}`}>
-            {percentage.toFixed(1)}%
-          </div>
-        </div>
+  const radius = 70;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(percentage, 100);
+  const offset = circumference - (progress / 100) * circumference;
 
-        <div className="space-y-3">
-          <div className="h-4 w-full bg-gray-50 rounded-full overflow-hidden p-0.5 border border-gray-100 shadow-inner">
-            <div 
-              className={`h-full rounded-full transition-all duration-1000 ease-out shadow-lg ${isHigh ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-blue-500 shadow-blue-500/20'}`}
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-[8px] font-black text-gray-300 uppercase tracking-[0.2em] px-1">
-             <span>Performance Level</span>
-             <span>{isHigh ? 'Dominating' : 'Developing'}</span>
-          </div>
+  return (
+    <div className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm flex flex-col items-center justify-center h-full min-h-[280px]">
+      <h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest mb-8 self-start">
+        {label}
+      </h3>
+      
+      <div className="relative flex items-center justify-center w-full">
+        <svg className="w-56 h-56 transform -rotate-90">
+          {/* Background Ring - Deep Navy */}
+          <circle
+            cx="112"
+            cy="112"
+            r={radius}
+            stroke="#0B1229"
+            strokeWidth="24"
+            fill="transparent"
+          />
+          {/* Progress Ring - Gradient */}
+          <circle
+            cx="112"
+            cy="112"
+            r={radius}
+            stroke="url(#gauge-gradient)"
+            strokeWidth="24"
+            strokeDasharray={circumference}
+            style={{ 
+              strokeDashoffset: offset, 
+              transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' 
+            }}
+            strokeLinecap="butt"
+            fill="transparent"
+          />
+          <defs>
+            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="100%" stopColor="#10b981" />
+            </linearGradient>
+          </defs>
+        </svg>
+        
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-5xl font-black text-gray-900 tracking-tighter">
+            {percentage.toFixed(1)}%
+          </span>
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">
+            {polled.toLocaleString()} / {total.toLocaleString()}
+          </span>
         </div>
+        
+        {/* Progress Handle / Indicator */}
+        <div 
+          className="absolute w-5 h-5 bg-cyan-400 rounded-full border-[3px] border-[#0B1229] shadow-lg transition-all duration-[1.5s] ease-[cubic-bezier(0.4, 0, 0.2, 1)]"
+          style={{
+            transform: `rotate(${ (progress / 100) * 360 }deg) translateY(-${radius}px)`,
+            top: 'calc(50% - 10px)',
+            left: 'calc(50% - 10px)',
+          }}
+        />
       </div>
     </div>
   );

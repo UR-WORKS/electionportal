@@ -12,26 +12,26 @@ async function resolveBoothAdmin() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { id: true, boothId: true, partyId: true },
+    select: { id: true, boothId: true, candidateId: true },
   });
-  if (!user || !user.boothId || !user.partyId) return null;
-  return user as { id: number; boothId: number; partyId: number };
+  if (!user || !user.boothId || !user.candidateId) return null;
+  return user as { id: number; boothId: number; candidateId: number };
 }
 
 /** 
  * POST /api/voters/mark/affiliation
- * Sets the predicted political party affiliation and optional vote status.
+ * Sets the predicted candidate affiliation and optional vote status.
  */
 export async function POST(request: Request) {
   const user = await resolveBoothAdmin();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await request.json();
-  const { serialNumber, boothId, targetPartyId, hasVoted } = body;
+  const { serialNumber, boothId, targetCandidateId, hasVoted } = body;
 
-  if (!serialNumber || !boothId || !targetPartyId) {
+  if (!serialNumber || !boothId || !targetCandidateId) {
     return NextResponse.json(
-      { error: 'serialNumber, boothId, and targetPartyId are required.' },
+      { error: 'serialNumber, boothId, and targetCandidateId are required.' },
       { status: 400 }
     );
   }
@@ -47,20 +47,20 @@ export async function POST(request: Request) {
     update: {},
   });
 
-  // 1. Clear any existing marks for this voter made by this admin's party group
-  // This ensures one "opinion" per voter per party.
+  // 1. Clear any existing marks for this voter made by this admin's candidate group
+  // This ensures one "opinion" per voter per candidate.
   await prisma.voterMark.deleteMany({
     where: {
       voterId: voter.id,
-      user: { partyId: user.partyId }
+      user: { candidateId: user.candidateId }
     }
   });
 
-  // 2. Create new mark with the selected affiliation
+  // 2. Create new mark with the selected candidate affiliation
   const mark = await prisma.voterMark.create({
     data: {
       voterId: voter.id,
-      partyId: Number(targetPartyId),
+      candidateId: Number(targetCandidateId),
       markedBy: user.id,
       hasVoted: Boolean(hasVoted)
     }
