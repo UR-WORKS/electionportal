@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
-import { Role } from '@/generated/prisma/client';
+import { Role } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { createSession, deleteSession } from '@/lib/session';
 
