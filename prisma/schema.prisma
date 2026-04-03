@@ -34,7 +34,7 @@ model Panchayath {
   booths         Booth[]
   users          User[]
 
-  @@index([constituencyId], map: "Panchayat_constituencyId_fkey")
+  @@index([constituencyId], map: "Panchayath_constituencyId_fkey")
   @@map("panchayath")
 }
 
@@ -48,7 +48,7 @@ model Booth {
   users        User[]
   voters       Voter[]
 
-  @@index([panchayathId], map: "Booth_panchayatId_fkey")
+  @@index([panchayathId], map: "Booth_panchayathId_fkey")
   @@map("booth")
 }
 
@@ -71,7 +71,7 @@ model User {
 
   @@index([boothId], map: "User_boothId_fkey")
   @@index([constituencyId], map: "User_constituencyId_fkey")
-  @@index([panchayathId], map: "User_panchayatId_fkey")
+  @@index([panchayathId], map: "User_panchayathId_fkey")
   @@index([candidateId], map: "User_partyId_fkey")
   @@map("user")
 }
@@ -112,4 +112,11 @@ enum Role {
   MANDAL_ADMIN
   PANCHAYATH_ADMIN
   BOOTH_ADMIN
+}
+
+model DashboardPulse {
+  id        Int      @id @default(1)
+  lastPulse DateTime @default(now())
+
+  @@map("dashboardpulse")
 }

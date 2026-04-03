@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
+import { Role } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { createSession, deleteSession } from '@/lib/session';
 
@@ -16,7 +17,7 @@ export async function login(
     return { error: 'Username and password are required.' };
   }
 
-  const user = await prisma.user.findUnique({ where: { username } });
+  const user = await prisma.user.findUnique({ where: { username }, include: { candidate: true, panchayath: true } });
 
   if (!user) {
     return { error: 'Invalid username or password.' };
@@ -35,9 +36,9 @@ export async function login(
   });
 
   const destination =
-    user.role === 'BOOTH_ADMIN' ? '/dashboard/booth'
-      : user.role === 'PANCHAYATH_ADMIN' ? '/dashboard/panchayath'
-        : user.role === 'MANDAL_ADMIN' ? '/dashboard/mandal'
+    user.role === Role.BOOTH_ADMIN ? '/dashboard/booth'
+      : user.role === Role.PANCHAYATH_ADMIN ? '/dashboard/panchayath'
+        : user.role === Role.MANDAL_ADMIN ? '/dashboard/mandal'
           : '/admin';
 
   redirect(destination);

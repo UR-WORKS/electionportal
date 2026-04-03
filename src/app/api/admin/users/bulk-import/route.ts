@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-guard';
 import * as XLSX from 'xlsx';
 import bcrypt from 'bcryptjs';
-import { Role } from '@/generated/prisma/enums';
+import { Role } from '@/generated/prisma/client';
 
 export async function POST(request: Request) {
   const s = await requireAdmin();
