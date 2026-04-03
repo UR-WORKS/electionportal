@@ -71,7 +71,7 @@ export function ElectionCountingGrid({
     if (m) {
       if (!m.voted) {
         // Case B: Mapped & Not Polled -> Instant toggle to true
-        toggleVote(serial); 
+        toggleVote(serial);
       } else {
         // Case C: Mapped & Already Polled -> Confirmation for Unpoll
         setUnpollVoter(serial);
@@ -88,15 +88,15 @@ export function ElectionCountingGrid({
     if (!current) return;
 
     const nextVotedState = !current.voted;
-    
+
     setMarks(prev => ({
       ...prev,
       [serial]: { ...current, voted: nextVotedState }
     }));
     setPending(prev => {
-        const next = new Set(prev);
-        next.add(serial);
-        return next;
+      const next = new Set(prev);
+      next.add(serial);
+      return next;
     });
 
     try {
@@ -106,7 +106,7 @@ export function ElectionCountingGrid({
         body: JSON.stringify({ action: 'POLL', serialNumber: serial, boothId }),
       });
       if (res.ok) {
-        showToast(nextVotedState ? `Voter #${serial} marked polled.` : `Voter #${serial} unmarked.`);
+        showToast(nextVotedState ? `Voter ${serial} marked polled.` : `Voter ${serial} unmarked.`);
       } else {
         setMarks(prev => ({ ...prev, [serial]: current }));
         showToast('Operation failed.', 'error');
@@ -115,11 +115,11 @@ export function ElectionCountingGrid({
       setMarks(prev => ({ ...prev, [serial]: current }));
       showToast('Connection error.', 'error');
     } finally {
-        setPending(prev => {
-            const next = new Set(prev);
-            next.delete(serial);
-            return next;
-        });
+      setPending(prev => {
+        const next = new Set(prev);
+        next.delete(serial);
+        return next;
+      });
     }
   };
 
@@ -139,7 +139,7 @@ export function ElectionCountingGrid({
       });
       if (res.ok) {
         setMarks(prev => ({ ...prev, [modalVoter]: { partyId, voted: true } }));
-        showToast(`Voter #${modalVoter} mapped & marked polled.`);
+        showToast(`Voter ${modalVoter} mapped & marked polled.`);
         setModalVoter(null);
       } else showToast('Mapping failed.', 'error');
     } catch (e) {
@@ -152,9 +152,8 @@ export function ElectionCountingGrid({
   return (
     <div className="space-y-10 pb-16">
       {toast && (
-        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-3xl shadow-2xl animate-in slide-in-from-top duration-500 border-2 ${
-          toast.type === 'success' ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-rose-600 border-rose-400 text-white'
-        }`}>
+        <div className={`fixed top-24 left-1/2 -translate-x-1/2 z-50 px-8 py-4 rounded-3xl shadow-2xl animate-in slide-in-from-top duration-500 border-2 ${toast.type === 'success' ? 'bg-emerald-600 border-emerald-400 text-white' : 'bg-rose-600 border-rose-400 text-white'
+          }`}>
           <div className="flex items-center gap-3 font-black uppercase text-xs tracking-widest">
             {toast.type === 'success' ? '⚡' : '⚠️'} {toast.message}
           </div>
@@ -168,18 +167,18 @@ export function ElectionCountingGrid({
             <div className="text-4xl mb-6 text-emerald-600 animate-bounce">🤔</div>
             <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight uppercase tracking-tight">Unmark Vote?</h3>
             <p className="text-sm font-bold text-gray-400 mb-8 leading-relaxed">
-              Voter #{unpollVoter} is already marked as polled. Are you sure you want to unmark this vote?
+              Voter {unpollVoter} is already marked as polled. Are you sure you want to unmark this vote?
             </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => { toggleVote(unpollVoter); setUnpollVoter(null); }}
-                className="w-full py-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-500 shadow-xl shadow-emerald-600/20 transition-all font-black uppercase text-sm active:scale-95"
+                className="w-full py-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-500 shadow-xl shadow-emerald-600/20 transition-all font-black uppercase text-base active:scale-95"
               >
                 Yes, Unmark
               </button>
               <button
                 onClick={() => setUnpollVoter(null)}
-                className="w-full py-4 rounded-2xl bg-gray-50 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all font-black uppercase text-xs"
+                className="w-full py-4 rounded-2xl bg-gray-50 text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all font-black uppercase text-base"
               >
                 No, Keep it
               </button>
@@ -194,20 +193,22 @@ export function ElectionCountingGrid({
             <h2 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Fast Polling Entry</h2>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Type a serial number and hit submit for instant turnout recording.</p>
           </div>
-          
+
           <form onSubmit={handleFastEntrySubmit} className="flex gap-3">
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min="1"
               max={totalVoters}
-              placeholder="0..."
+              placeholder=""
               value={fastEntry}
               onChange={(e) => setFastEntry(e.target.value)}
-              className="flex-1 md:w-48 bg-gray-50 border border-gray-100 rounded-2xl px-8 py-4 text-gray-900 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-black shadow-inner"
+              className="flex-1 md:w-48 bg-gray-50 border border-gray-100 rounded-2xl px-8 py-4 text-base font-black text-gray-900 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner"
             />
             <button
               type="submit"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-sm shadow-xl shadow-emerald-600/20 active:scale-95 transition-all"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-base shadow-xl shadow-emerald-600/20 active:scale-95 transition-all"
             >
               Submit
             </button>
@@ -248,8 +249,8 @@ export function ElectionCountingGrid({
                 ${hasVoted
                   ? 'bg-emerald-600 border-emerald-500 text-white shadow-xl shadow-emerald-600/10'
                   : isMapped
-                  ? 'bg-white border-indigo-200 text-indigo-600 hover:border-indigo-400 shadow-xl shadow-indigo-600/5'
-                  : 'bg-white border-gray-300 text-slate-700 font-semibold hover:bg-gray-50 hover:border-gray-400 shadow-sm'
+                    ? 'bg-white border-indigo-200 text-indigo-600 hover:border-indigo-400 shadow-xl shadow-indigo-600/5'
+                    : 'bg-white border-gray-300 text-slate-700 font-semibold hover:bg-gray-50 hover:border-gray-400 shadow-sm'
                 }
                 ${isPending ? 'opacity-30' : ''}
               `}
@@ -271,7 +272,7 @@ export function ElectionCountingGrid({
           onSave={handleMapAndVote}
           onCancel={() => setModalVoter(null)}
           isSaving={saving}
-          title={`Map & Mark Polled #${modalVoter}`}
+          title={`Map & Mark Polled ${modalVoter}`}
           saveLabel="Save & Mark Polled"
         />
       )}

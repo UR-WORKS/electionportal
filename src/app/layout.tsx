@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
 
@@ -12,6 +12,19 @@ export const metadata: Metadata = {
   title: 'Election Portal | Secure & Transparent',
   description: 'A modern, secure, and transparent platform for digital elections.',
   keywords: 'election, portal, digital voting, secure, transparent',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ElectionPortal',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#10B981',
 };
 
 export default function RootLayout({

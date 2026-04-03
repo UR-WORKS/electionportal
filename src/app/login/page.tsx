@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-6">
       <div className="w-full max-w-sm space-y-8 animate-in fade-in zoom-in duration-500">
-        
+
         {/* Brand Header */}
         <div className="text-center space-y-6">
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-emerald-600 shadow-2xl shadow-emerald-500/30 text-white text-4xl font-black">
@@ -34,8 +34,8 @@ export default function LoginPage() {
                 type="text"
                 autoComplete="username"
                 required
-                placeholder="0001"
-                className="w-full rounded-2xl bg-gray-50 border border-gray-100 px-6 py-4 text-sm font-black text-gray-900 placeholder-gray-300 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono"
+                placeholder=""
+                className="w-full rounded-2xl bg-gray-50 border border-gray-100 px-6 py-4 text-base font-black text-gray-900 placeholder-gray-300 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono"
               />
             </div>
 
@@ -49,8 +49,8 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                placeholder="••••••••"
-                className="w-full rounded-2xl bg-gray-50 border border-gray-100 px-6 py-4 text-sm font-black text-gray-900 placeholder-gray-300 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                placeholder=""
+                className="w-full rounded-2xl bg-gray-50 border border-gray-100 px-6 py-4 text-base font-black text-gray-900 placeholder-gray-300 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
               />
             </div>
 
@@ -79,7 +79,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">
-           Voter Tracking System 
+          Voter Tracking System
         </p>
       </div>
     </div>

@@ -54,7 +54,7 @@ export function VoterMarkModal({
                       }
                     `}
                   >
-                    <span className={`text-sm font-black tracking-widest uppercase ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                    <span className={`text-base font-black tracking-widest uppercase ${isSelected ? 'text-white' : 'text-gray-900'}`}>
                       {p.abbrev}
                     </span>
                     <span className={`text-[0.6rem] font-bold truncate w-full text-center mt-1 uppercase ${isSelected ? 'text-emerald-100/70' : 'text-gray-400'}`}>
@@ -73,14 +73,14 @@ export function VoterMarkModal({
             <button
               onClick={() => selectedParty && onSave(selectedParty)}
               disabled={isSaving || !selectedParty}
-              className="w-full py-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-500 shadow-xl shadow-emerald-600/20 transition-all font-black uppercase text-sm disabled:opacity-30 disabled:shadow-none active:scale-95"
+              className="w-full py-4 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-500 shadow-xl shadow-emerald-600/20 transition-all font-black uppercase text-base disabled:opacity-30 disabled:shadow-none active:scale-95"
             >
               {isSaving ? 'Saving…' : saveLabel}
             </button>
             <button
               onClick={onCancel}
               disabled={isSaving}
-              className="w-full py-4 rounded-2xl bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all font-black uppercase text-xs active:scale-95"
+              className="w-full py-4 rounded-2xl bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all font-black uppercase text-base active:scale-95"
             >
               Cancel
             </button>
