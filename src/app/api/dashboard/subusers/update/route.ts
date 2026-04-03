@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getDashboardUser } from '@/lib/dashboard-auth';
+import { Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
-  const admin = await getDashboardUser(['MANDAL_ADMIN', 'PANCHAYATH_ADMIN']);
+  const admin = await getDashboardUser([Role.MANDAL_ADMIN, Role.PANCHAYATH_ADMIN]);
   if (!admin || !admin.candidateId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -26,14 +27,14 @@ export async function POST(request: Request) {
     }
 
     // Authorization checks
-    if (admin.role === 'MANDAL_ADMIN') {
+    if (admin.role === Role.MANDAL_ADMIN) {
       // Mandal Admin can only edit Panchayath Admins in their constituency
-      if (targetUser.role !== 'PANCHAYATH_ADMIN' || targetUser.constituencyId !== admin.constituencyId) {
+      if (targetUser.role !== Role.PANCHAYATH_ADMIN || targetUser.constituencyId !== admin.constituencyId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
-    } else if (admin.role === 'PANCHAYATH_ADMIN') {
+    } else if (admin.role === Role.PANCHAYATH_ADMIN) {
       // Panchayath Admin can only edit Booth Admins in their panchayath
-      if (targetUser.role !== 'BOOTH_ADMIN' || targetUser.panchayathId !== admin.panchayathId) {
+      if (targetUser.role !== Role.BOOTH_ADMIN || targetUser.panchayathId !== admin.panchayathId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }

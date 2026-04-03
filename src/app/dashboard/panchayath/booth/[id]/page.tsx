@@ -3,6 +3,7 @@ import { getDashboardUser } from '@/lib/dashboard-auth';
 import { prisma } from '@/lib/prisma';
 import { ReadOnlyVoterGrid } from '@/components/booth/ReadOnlyVoterGrid';
 import Link from 'next/link';
+import { Role } from '@prisma/client';
 
 export default async function panchayathBoothView({
   params
@@ -11,7 +12,7 @@ export default async function panchayathBoothView({
 }) {
   const { id } = await params;
   const boothId = parseInt(id);
-  const user = await getDashboardUser(['PANCHAYATH_ADMIN']);
+  const user = await getDashboardUser([Role.PANCHAYATH_ADMIN]);
   if (!user || !user.panchayathId || !user.candidateId) redirect('/login');
 
   // Verify booth belongs to this panchayath

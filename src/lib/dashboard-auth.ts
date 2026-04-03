@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { decrypt, SessionPayload } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
-import { Role } from '@/generated/prisma/client';
+import { Role } from '@prisma/client';
 
 /**
  * Verifies the current session and ensures the user has one of the allowed roles.

@@ -3,9 +3,10 @@ import { getDashboardUser } from '@/lib/dashboard-auth';
 import { prisma } from '@/lib/prisma';
 import { PanchayathDashboardClient } from '@/components/dashboard/PanchayathDashboardClient';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { Role } from '@prisma/client';
 
 export default async function PanchayaythDashboard() {
-  const user = await getDashboardUser(['PANCHAYATH_ADMIN']);
+  const user = await getDashboardUser([Role.PANCHAYATH_ADMIN]);
   if (!user || !user.panchayathId || !user.candidateId) redirect('/login');
 
   // 1. Total Electorate for the entire panchayath

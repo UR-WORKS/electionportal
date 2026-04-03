@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getDashboardUser } from '@/lib/dashboard-auth';
+import { Role } from '@prisma/client';
 
 export async function GET() {
-  const user = await getDashboardUser(['PANCHAYATH_ADMIN']);
+  const user = await getDashboardUser([Role.PANCHAYATH_ADMIN]);
   if (!user || !user.panchayathId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

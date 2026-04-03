@@ -37,7 +37,7 @@ export async function login(
 
   const destination =
     user.role === Role.BOOTH_ADMIN ? '/dashboard/booth'
-      : (user.role as any) === 'PANCHAYATH_ADMIN' || (user.role as any) === 'PANCHAYAT_ADMIN' ? '/dashboard/panchayath'
+      : (user.role as any) === 'PANCHAYATH_ADMIN' || (user.role as any) === 'PANCHAYATH_ADMIN' ? '/dashboard/panchayath'
         : user.role === Role.MANDAL_ADMIN ? '/dashboard/mandal'
           : '/admin';
 

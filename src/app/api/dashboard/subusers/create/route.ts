@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getDashboardUser } from '@/lib/dashboard-auth';
+import { Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
-  const admin = await getDashboardUser(['MANDAL_ADMIN', 'PANCHAYATH_ADMIN']);
+  const admin = await getDashboardUser([Role.MANDAL_ADMIN, Role.PANCHAYATH_ADMIN]);
   if (!admin || !admin.candidateId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -22,8 +23,8 @@ export async function POST(request: Request) {
     let targetBoothId = boothId ? Number(boothId) : null;
 
     // MANDAL_ADMIN creating a PANCHAYATH_ADMIN
-    if (admin.role === 'MANDAL_ADMIN') {
-      if (role !== 'PANCHAYATH_ADMIN') return NextResponse.json({ error: 'Mandal Admin can only create Panchayath Admins' }, { status: 403 });
+    if (admin.role === Role.MANDAL_ADMIN) {
+      if (role !== Role.PANCHAYATH_ADMIN) return NextResponse.json({ error: 'Mandal Admin can only create Panchayath Admins' }, { status: 403 });
       if (!targetpanchayathId) return NextResponse.json({ error: 'panchayath ID is required' }, { status: 400 });
 
       // Verify panchayath belongs to mandal
@@ -34,8 +35,8 @@ export async function POST(request: Request) {
     }
 
     // PANCHAYATH_ADMIN creating a BOOTH_ADMIN
-    if (admin.role === 'PANCHAYATH_ADMIN') {
-      if (role !== 'BOOTH_ADMIN') return NextResponse.json({ error: 'Panchayath Admin can only create Booth Admins' }, { status: 403 });
+    if (admin.role === Role.PANCHAYATH_ADMIN) {
+      if (role !== Role.BOOTH_ADMIN) return NextResponse.json({ error: 'Panchayath Admin can only create Booth Admins' }, { status: 403 });
 
       // If boothId not provided, we might be creating a new Booth
       if (!targetBoothId) {

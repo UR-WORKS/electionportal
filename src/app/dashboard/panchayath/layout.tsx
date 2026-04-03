@@ -1,15 +1,16 @@
 import { redirect } from 'next/navigation';
 import { getDashboardUser } from '@/lib/dashboard-auth';
 import { DashboardLayoutClient } from '@/components/dashboard/DashboardLayoutClient';
+import { Role } from '@prisma/client';
 
 export default async function panchayathLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getDashboardUser(['PANCHAYATH_ADMIN']);
+  const user = await getDashboardUser([Role.PANCHAYATH_ADMIN]);
 
-  if (!user || user.role !== 'PANCHAYATH_ADMIN') {
+  if (!user || user.role !== Role.PANCHAYATH_ADMIN) {
     redirect('/login');
   }
 
