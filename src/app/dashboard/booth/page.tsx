@@ -104,10 +104,10 @@ export default async function BoothDashboard() {
   return (
     <div className="space-y-12">
       <VoterCountPrompt boothId={user.boothId} initialTotalVoters={user.booth.totalVoters} />
-      
-      <DashboardHeader 
-        title="Dashboard Overview" 
-        subtitle={`Booth ${user.booth.number} · ${user.candidate.abbrev}\n${user.booth.name}`} 
+
+      <DashboardHeader
+        title="Dashboard Overview"
+        subtitle={`Booth ${user.booth.number} · ${user.candidate.abbrev}\n${user.booth.name}`}
       />
 
       {/* Top Metrics Grid */}
@@ -124,80 +124,84 @@ export default async function BoothDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Comparative Prediction Report */}
-        <div className="rounded-[2.5rem] bg-[#0B1229] p-10 text-white shadow-2xl relative overflow-hidden group border border-white/5 h-full">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
-          <div className="relative space-y-8">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-black uppercase tracking-tight">Predicted Affiliation Report</h2>
-              <p className="text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest leading-relaxed">
-                Comparison of predicted voter base strengths relative to total electorate ({totalVotersVal}).
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {comparisonData.map((cand) => {
-                const isUs = cand.id === user.candidateId;
-                return (
-                  <div key={cand.id} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className={`h-2 w-2 rounded-full ${isUs ? 'bg-emerald-400 animate-pulse' : 'bg-gray-600'}`} />
-                        <span className={`text-[11px] font-black uppercase tracking-widest ${isUs ? 'text-white' : 'text-gray-400'}`}>
-                          {cand.abbrev} {isUs && '(US)'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-black text-emerald-400">{cand.count} Mapped ({cand.predictionPercentage}%)</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Candidate Performance - Polled Results */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+          <div className="flex flex-col gap-2 mb-8">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">CANDIDATE PERFORMANCE</h3>
+            <p className="text-xl font-black text-slate-900 tracking-tight uppercase">Live Polling Results</p>
+          </div>
+          <div className="space-y-8">
+            {comparisonData.sort((a, b) => b.voted - a.voted).map((c, i) => {
+              const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-orange-500', 'bg-slate-400'];
+              const color = bgColors[i % bgColors.length];
+              const isUs = c.id === user.candidateId;
+              
+              return (
+                <div key={c.id} className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight">
+                        {c.name} {isUs && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 ml-2">US</span>
+                        )}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{c.abbrev}</p>
                     </div>
-                    <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                      <div 
-                        className={`h-full transition-all duration-1000 ease-out ${isUs ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'bg-gray-700'}`}
-                        style={{ width: `${cand.predictionPercentage}%` }}
-                      />
+                    <div className="text-right">
+                      <p className="text-lg font-black text-slate-900">{c.voted.toLocaleString()}</p>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{c.votingPercentage}%</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${isUs ? 'bg-emerald-600' : color} transition-all duration-1000 shadow-[0_0_8px_rgba(0,0,0,0.05)]`} 
+                      style={{ width: `${c.votingPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Live Election Counting Summary */}
-        <div className="rounded-[2.5rem] bg-white p-10 text-gray-900 shadow-xl border border-gray-100 relative overflow-hidden h-full">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl opacity-50" />
-          <div className="relative space-y-8">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-black uppercase tracking-tight">Election Polling Summary</h2>
-              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest leading-relaxed">
-                Live turnout statistics for each candidate based on reported polled voters.
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {comparisonData.sort((a, b) => b.voted - a.voted).map((cand) => {
-                const isUs = cand.id === user.candidateId;
-                return (
-                  <div key={cand.id} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className={`h-2 w-2 rounded-full ${isUs ? 'bg-indigo-400 animate-pulse' : 'bg-gray-300'}`} />
-                        <span className={`text-[11px] font-black uppercase tracking-widest ${isUs ? 'text-gray-900' : 'text-gray-400'}`}>
-                          {cand.abbrev} {isUs && '(US)'}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-black text-indigo-600">{cand.voted} Polled ({cand.votingPercentage}%)</span>
+        {/* Predicted Affiliation Report */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+          <div className="flex flex-col gap-2 mb-8">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">PREDICTED AFFILIATION REPORT</h3>
+            <p className="text-xl font-black text-slate-900 tracking-tight uppercase">Theoretical Strength</p>
+          </div>
+          <div className="space-y-8">
+            {comparisonData.sort((a, b) => b.count - a.count).map((cand, i) => {
+              const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-orange-500', 'bg-slate-400'];
+              const color = colors[i % colors.length];
+              const isUs = cand.id === user.candidateId;
+              
+              return (
+                <div key={cand.id} className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight">
+                        {cand.name} {isUs && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 ml-2">US</span>
+                        )}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{cand.abbrev}</p>
                     </div>
-                    <div className="h-3 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
-                      <div 
-                        className={`h-full transition-all duration-1000 ease-out ${isUs ? 'bg-indigo-500' : 'bg-gray-200'}`}
-                        style={{ width: `${cand.votingPercentage}%` }}
-                      />
+                    <div className="text-right">
+                      <p className="text-lg font-black text-slate-900">{cand.count.toLocaleString()}</p>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{cand.predictionPercentage}%</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${isUs ? 'bg-emerald-600 shadow-[0_0_8px_rgba(16,185,129,0.2)]' : color} transition-all duration-1000`} 
+                      style={{ width: `${cand.predictionPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

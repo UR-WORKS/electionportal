@@ -5,7 +5,7 @@ import { PanchayathDashboardClient } from '@/components/dashboard/PanchayathDash
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Role } from '@prisma/client';
 
-export default async function PanchayaythDashboard() {
+export default async function PanchayathDashboard() {
   const user = await getDashboardUser([Role.PANCHAYATH_ADMIN]);
   if (!user || !user.panchayathId || !user.candidateId) redirect('/login');
 
@@ -16,8 +16,8 @@ export default async function PanchayaythDashboard() {
   });
   const totalElectorate = sumResult._sum.totalVoters || 0;
 
-  // 2. Aggregate Stats for the entire panchayath
-  const [totalPredicted, totalPolled] = await Promise.all([
+  // 2. Aggregate Stats for the entire panchayath and all candidates
+  const [totalPredicted, totalPolled, candidates] = await Promise.all([
     prisma.voterMark.count({
       where: {
         voter: { booth: { panchayathId: user.panchayathId } },
@@ -30,13 +30,47 @@ export default async function PanchayaythDashboard() {
         candidateId: user.candidateId,
         hasVoted: true
       }
+    }),
+    prisma.candidate.findMany({
+      include: {
+        marks: {
+          where: {
+            voter: { booth: { panchayathId: user.panchayathId } },
+            hasVoted: true
+          }
+        },
+        _count: {
+          select: {
+            marks: {
+              where: {
+                voter: { booth: { panchayathId: user.panchayathId } }
+              }
+            }
+          }
+        }
+      }
     })
   ]);
+
+  // Aggregate candidate performance
+  const allCandidates = candidates.map(c => ({
+    id: c.id,
+    name: c.name,
+    party: c.abbrev,
+    votes: c.marks.length,
+    predicted: c._count.marks,
+    percentage: totalPolled > 0 ? ((c.marks.length / totalPolled) * 100).toFixed(1) : '0.0',
+    predictionPercentage: totalPredicted > 0 ? ((c._count.marks / totalPredicted) * 100).toFixed(1) : '0.0'
+  })).sort((a, b) => b.votes - a.votes);
 
   // 3. Breakdown by Booth
   const booths = await prisma.booth.findMany({
     where: { panchayathId: user.panchayathId },
     include: {
+      users: {
+        where: { role: Role.BOOTH_ADMIN },
+        select: { name: true, username: true }
+      },
       voters: {
         include: {
           marks: {
@@ -56,10 +90,16 @@ export default async function PanchayaythDashboard() {
         if (m.hasVoted) wPolled++;
       });
     });
+    
+    const admin = w.users[0];
+    
     return {
       id: w.id,
       number: w.number,
       name: w.name,
+      totalVoters: w.totalVoters,
+      adminName: admin?.name || 'N/A',
+      adminUsername: admin?.username || 'N/A',
       predicted: wPredicted,
       polled: wPolled,
       percentage: wPredicted > 0 ? ((wPolled / wPredicted) * 100).toFixed(1) : '0.0'
@@ -68,18 +108,22 @@ export default async function PanchayaythDashboard() {
 
   return (
     <>
-      <DashboardHeader 
-        title="Panchayath Overview" 
-        subtitle={`${user.candidate?.name || 'Candidate'} · ${user.panchayath?.name || 'Panchayath'}\nTotal Electorate: ${totalElectorate}`} 
+      <DashboardHeader
+        title="Panchayath Overview"
+        subtitle={`${user.candidate?.name || 'Candidate'} · ${user.panchayath?.name || 'Panchayath'}`}
       />
-      <PanchayathDashboardClient
-        totalPredicted={totalPredicted}
-        totalPolled={totalPolled}
-        totalElectorate={totalElectorate}
-        panchayathName={user.panchayath?.name || 'panchayath'}
-        candidateName={user.candidate?.name || 'Unknown Candidate'}
-        initialBooths={initialBooths}
-      />
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PanchayathDashboardClient
+          totalPredicted={totalPredicted}
+          totalPolled={totalPolled}
+          totalElectorate={totalElectorate}
+          panchayathName={user.panchayath?.name || 'panchayath'}
+          candidateName={user.candidate?.name || 'Unknown Candidate'}
+          candidateId={user.candidateId}
+          initialBooths={initialBooths}
+          allCandidates={allCandidates}
+        />
+      </div>
     </>
   );
 }

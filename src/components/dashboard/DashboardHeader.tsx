@@ -20,7 +20,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
   const handleManualRefresh = () => {
     setIsRefreshing(true);
     router.refresh();
-    
+
     // Update the timestamp
     setLastRefreshed(new Date().toLocaleString());
 
@@ -48,7 +48,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
           )}
         </div>
       </div>
-      
+
       <div className="flex items-center gap-4">
         <button
           onClick={handleManualRefresh}

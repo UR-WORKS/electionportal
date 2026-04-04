@@ -85,11 +85,10 @@ export default function ManagePanchayathPage() {
               <div key={p.id} className="group p-8 rounded-[2.5rem] bg-white border border-gray-100 hover:border-emerald-600/20 shadow-sm transition-all space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="h-14 w-14 rounded-2xl bg-gray-50 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🏘️</div>
-                  <span className={`text-[10px] font-black ${
-                    hasAdmin ? 'text-emerald-600 bg-emerald-50' : 
-                    isTakenByOthers ? 'text-rose-600 bg-rose-50' : 
-                    'text-amber-600 bg-amber-50'
-                  } px-3 py-1 rounded-full uppercase tracking-widest`}>
+                  <span className={`text-[10px] font-black ${hasAdmin ? 'text-emerald-600 bg-emerald-50' :
+                      isTakenByOthers ? 'text-rose-600 bg-rose-50' :
+                        'text-amber-600 bg-amber-50'
+                    } px-3 py-1 rounded-full uppercase tracking-widest`}>
                     {hasAdmin ? 'Admin Assigned' : isTakenByOthers ? 'Username Taken' : 'No Admin'}
                   </span>
                 </div>
@@ -107,11 +106,10 @@ export default function ManagePanchayathPage() {
                 </div>
                 <button
                   onClick={() => openAdminModal(p)}
-                  className={`w-full py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 ${
-                    hasAdmin 
-                      ? 'bg-[#0B1229] text-white hover:bg-gray-800' 
+                  className={`w-full py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 ${hasAdmin
+                      ? 'bg-[#0B1229] text-white hover:bg-gray-800'
                       : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/10'
-                  }`}
+                    }`}
                 >
                   {hasAdmin ? 'Edit Admin' : 'Add Admin'}
                 </button>

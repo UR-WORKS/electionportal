@@ -2,16 +2,40 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PerformanceAnalytics } from './PerformanceAnalytics';
-import { ReportingButton } from './ReportingButton';
 
 type panchayathData = {
   id: number;
   name: string;
+  totalVoters: number;
+  adminName: string;
+  adminUsername: string;
   predicted: number;
   polled: number;
   percentage: string;
 };
+
+// --- Icons (Inline SVGs) ---
+const IconSearch = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+);
+
+const Badge = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${className}`}>
+    {children}
+  </span>
+);
+
+const Card = ({ children, title, action, className = "" }: { children: React.ReactNode, title?: string, action?: React.ReactNode, className?: string }) => (
+  <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm p-6 ${className}`}>
+    {(title || action) && (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        {title && <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">{title}</h3>}
+        {action}
+      </div>
+    )}
+    {children}
+  </div>
+);
 
 export function MandalDashboardClient({
   totalPredicted,
@@ -19,21 +43,27 @@ export function MandalDashboardClient({
   totalElectorate,
   mandalName,
   candidateName,
+  candidateId,
   initialpanchayaths,
   trends,
+  allCandidates,
 }: {
   totalPredicted: number;
   totalPolled: number;
   totalElectorate: number;
   mandalName: string;
   candidateName: string;
+  candidateId: number;
   initialpanchayaths: panchayathData[];
   trends: { predicted: string; polled: string; pending: string };
+  allCandidates: { id: number; name: string; party: string; votes: number; predicted: number; percentage: string; predictionPercentage: string }[];
 }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredpanchayaths = initialpanchayaths.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.adminName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.adminUsername.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredPredicted = searchTerm ? filteredpanchayaths.reduce((acc, p) => acc + p.predicted, 0) : totalPredicted;
@@ -42,192 +72,164 @@ export function MandalDashboardClient({
   const percentage = filteredPredicted > 0 ? ((filteredPolled / filteredPredicted) * 100).toFixed(1) : '0.0';
 
   const stats = [
-    { label: 'Total Predicted', value: filteredPredicted, icon: '📈', color: 'blue' },
-    { label: 'Total Polled', value: filteredPolled, icon: '✅', color: 'emerald' },
-    { label: 'Pending', value: pending, icon: '⏳', color: 'amber' },
-    { label: 'Polling %', value: `${percentage}%`, icon: '📊', color: 'teal' },
+    { label: 'TOTAL PREDICTED', value: filteredPredicted.toLocaleString(), icon: '📊', trend: trends.predicted },
+    { label: 'TOTAL POLLED', value: filteredPolled.toLocaleString(), icon: '✅', trend: trends.polled },
+    { label: 'PENDING', value: pending.toLocaleString(), icon: '⏳', trend: trends.pending },
+    { label: 'POLLING %', value: `${percentage}%`, icon: '📈', color: 'emerald', border: true },
   ];
 
-  const colorMap: any = {
-    blue: 'text-blue-600 bg-blue-50',
-    emerald: 'text-emerald-600 bg-emerald-50',
-    amber: 'text-amber-600 bg-amber-50',
-    teal: 'text-teal-600 bg-teal-50',
-  };
-
-  const reportData = {
-    title: `Election Performance Report - ${mandalName}`,
-    candidateName: candidateName,
-    metrics: {
-      totalElectorate: totalElectorate,
-      totalPolled: filteredPolled,
-      pending: pending,
-      percentage: percentage
-    },
-    tableHeader: ['panchayath Name', 'Predicted', 'Polled', 'Percentage'] as [string, string, string, string],
-    tableData: filteredpanchayaths.map(p => ({
-      name: p.name,
-      total: p.predicted,
-      polled: p.polled,
-      percentage: p.percentage
-    }))
-  };
-
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-black text-[#0B1229] tracking-tight uppercase">Mandalam Dashboard</h1>
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Aggregated Regional Performance for {candidateName}.</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <ReportingButton data={reportData} />
-        </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, i) => (
+          <Card key={i} className={`${stat.border ? 'border-emerald-200 ring-4 ring-emerald-50' : ''}`}>
+            <div className="flex justify-between items-start mb-6">
+              <span className="text-3xl filter grayscale opacity-20">{stat.icon}</span>
+              {stat.trend && (
+                <Badge className={`${Number(stat.trend) >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                  {Number(stat.trend) >= 0 ? '+' : ''}{stat.trend}% from last hour
+                </Badge>
+              )}
+            </div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
+            <h4 className="text-3xl font-black text-slate-900 mt-1">{stat.value}</h4>
+          </Card>
+        ))}
       </div>
 
-      {/* Stats and Analytics Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <div className="xl:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Total Predicted Card */}
-          <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[180px]">
-            <div className="w-12 h-12 rounded-xl bg-[#0B1229]/5 flex items-center justify-center text-[#0B1229]">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Predicted</p>
-              <h3 className="text-4xl font-black text-[#0B1229] tracking-tighter">{filteredPredicted.toLocaleString()}</h3>
-            </div>
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold ${Number(trends.predicted) >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'
-                }`}>
-                {Number(trends.predicted) >= 0 ? '+' : ''}{trends.predicted}% from last hour
-              </span>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Candidate Performance - Polled Results */}
+        <Card title="CANDIDATE PERFORMANCE">
+          <div className="space-y-8">
+            {allCandidates.sort((a, b) => b.votes - a.votes).map((c, i) => {
+              const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-orange-500', 'bg-slate-400'];
+              const color = bgColors[i % bgColors.length];
+              const isUs = c.id === candidateId;
+              
+              return (
+                <div key={c.id} className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight">
+                        {c.name} {isUs && <Badge className="bg-emerald-50 text-emerald-600 ml-2">US</Badge>}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{c.party}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-black text-slate-900">{c.votes.toLocaleString()}</p>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{c.percentage}%</p>
+                    </div>
+                  </div>
+                  <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${isUs ? 'bg-emerald-600' : color} transition-all duration-1000 shadow-[0_0_8px_rgba(0,0,0,0.05)]`} 
+                      style={{ width: `${c.percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        </Card>
 
-          {/* Total Polled Card */}
-          <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[180px]">
-            <div className="w-12 h-12 rounded-xl bg-[#0B1229]/5 flex items-center justify-center text-[#0B1229]">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Polled</p>
-              <h3 className="text-4xl font-black text-[#0B1229] tracking-tighter">{filteredPolled.toLocaleString()}</h3>
-            </div>
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold ${Number(trends.polled) >= 0 ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-red-50 text-red-600 border-red-100'
-                }`}>
-                {Number(trends.polled) >= 0 ? '+' : ''}{trends.polled}% from last hour
-              </span>
-            </div>
+        {/* Predicted Affiliation Report */}
+        <Card title="PREDICTED AFFILIATION REPORT">
+          <div className="space-y-8">
+            {allCandidates.sort((a, b) => b.predicted - a.predicted).map((cand, i) => {
+              const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-orange-500', 'bg-slate-400'];
+              const color = colors[i % colors.length];
+              const isUs = cand.id === candidateId;
+              
+              return (
+                <div key={cand.id} className="space-y-3">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="font-black text-slate-900 text-sm uppercase tracking-tight">
+                        {cand.name} {isUs && <Badge className="bg-emerald-50 text-emerald-600 ml-2">US</Badge>}
+                      </p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">{cand.party}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-black text-slate-900">{cand.predicted.toLocaleString()}</p>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{cand.predictionPercentage}%</p>
+                    </div>
+                  </div>
+                  <div className="h-2.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${isUs ? 'bg-emerald-600 shadow-[0_0_8px_rgba(16,185,129,0.2)]' : color} transition-all duration-1000`} 
+                      style={{ width: `${cand.predictionPercentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-
-          {/* Pending Card */}
-          <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-between min-h-[180px]">
-            <div className="w-12 h-12 rounded-xl bg-[#0B1229]/5 flex items-center justify-center text-[#0B1229]">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending</p>
-              <h3 className="text-4xl font-black text-[#0B1229] tracking-tighter">{pending.toLocaleString()}</h3>
-            </div>
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold ${Number(trends.pending) <= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'
-                }`}>
-                {Number(trends.pending) > 0 ? '+' : ''}{trends.pending}% from last hour
-              </span>
-            </div>
-          </div>
-
-          {/* Polling % Card - Highlighted */}
-          <div className="bg-white p-5 rounded-3xl border-2 border-emerald-500 shadow-lg shadow-emerald-500/5 flex flex-col justify-between min-h-[180px]">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Polling %</p>
-              <h3 className="text-4xl font-black text-emerald-600 tracking-tighter">{percentage}%</h3>
-            </div>
-            <div className="mt-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold ${Number(trends.polled) >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'
-                }`}>
-                {Number(trends.polled) >= 0 ? '+' : ''}{trends.polled}% from last hour
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="xl:col-span-3">
-          <PerformanceAnalytics
-            polled={filteredPredicted}
-            total={totalElectorate}
-          />
-        </div>
+        </Card>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mt-8">
-        <div className="p-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <h2 className="text-xs font-black text-gray-900 uppercase tracking-[0.2em]">panchayath Performance</h2>
-          <div className="relative w-full md:w-80">
-            <input
-              type="text"
-              placeholder="Search panchayaths..."
+      <div className="pt-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">PANCHAYATH PERFORMANCE</h2>
+            <p className="text-xl font-black text-slate-900 tracking-tight uppercase">Panchayath-Level Breakdown</p>
+          </div>
+
+          <div className="relative group min-w-[280px]">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors">
+              <IconSearch />
+            </span>
+            <input 
+              type="text" 
+              placeholder="Search panchayath..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#F8FAFC] border border-gray-100 rounded-xl pl-10 pr-4 py-2.5 text-xs font-bold text-[#0B1229] placeholder-gray-400 focus:ring-2 focus:ring-[#0B1229]/5 focus:border-[#0B1229] outline-none transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-900 focus:ring-4 focus:ring-slate-900/5 transition-all"
             />
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-[#F8FAFC] border-b border-gray-50">
-                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">panchayath Name</th>
-                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Voters</th>
-                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Polled</th>
-                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Pending</th>
-                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest w-64">Polling %</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filteredpanchayaths.map((p) => {
-                const pPending = p.predicted - p.polled;
-                const pPercentage = parseFloat(p.percentage);
-                return (
-                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => window.location.href = `/dashboard/mandal/panchayath/${p.id}`}>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-black text-[#0B1229] uppercase tracking-tight group-hover:text-emerald-600 transition-colors">{p.name}</span>
-                    </td>
-                    <td className="px-8 py-6 text-sm font-bold text-gray-500">{p.predicted.toLocaleString()}</td>
-                    <td className="px-8 py-6 text-sm font-bold text-[#0B1229]">{p.polled.toLocaleString()}</td>
-                    <td className="px-8 py-6 text-sm font-bold text-red-500">{pPending.toLocaleString()}</td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-black text-[#0B1229] w-10">{p.percentage}%</span>
-                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                            style={{ width: `${pPercentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-              {filteredpanchayaths.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-8 py-20 text-center">
-                    <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No matching panchayaths found</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredpanchayaths.map((p) => (
+            <Link 
+              key={p.id} 
+              href={`/dashboard/mandal/panchayath/${p.id}`}
+              className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer group flex flex-col justify-between h-full"
+            >
+              <div className="space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900 uppercase group-hover:text-emerald-600 transition-colors">{p.name}</h4>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Admin: {p.adminName}</p>
+                    <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none">@{p.adminUsername}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em]">ELECTORATE</p>
+                    <p className="text-sm font-black text-slate-900">{p.totalVoters.toLocaleString()}</p>
+                  </div>
+                </div>
+                
+                <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]" style={{ width: `${p.percentage}%` }}></div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex items-center justify-between pt-4 border-t border-slate-100">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">{p.polled.toLocaleString()} / {p.predicted.toLocaleString()} POLLED</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.25 w-1.25 bg-emerald-500 rounded-full"></span>
+                  <span className="text-[11px] font-black text-emerald-600 tracking-tighter">{p.percentage}%</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+          
+          {filteredpanchayaths.length === 0 && (
+            <div className="col-span-full py-20 text-center border-2 border-dashed border-slate-100 rounded-2xl">
+              <p className="text-slate-300 font-black uppercase tracking-[0.2em] text-[10px]">No Matching Panchayaths Found</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

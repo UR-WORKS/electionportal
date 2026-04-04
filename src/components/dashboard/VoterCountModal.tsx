@@ -86,26 +86,26 @@ export function VoterCountModal({ boothId, onSuccess }: Props) {
             )}
 
             <button
-                type="submit"
-                disabled={loading}
-                className="group relative w-full h-20 rounded-[2rem] bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-40 shadow-2xl shadow-emerald-600/20 transition-all font-black uppercase text-sm active:scale-95 flex items-center justify-center gap-4 overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Initializing...
-                  </span>
-                ) : (
-                  <>
-                    Save & Continue
-                    <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
-                  </>
-                )}
-              </button>
+              type="submit"
+              disabled={loading}
+              className="group relative w-full h-20 rounded-[2rem] bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-40 shadow-2xl shadow-emerald-600/20 transition-all font-black uppercase text-sm active:scale-95 flex items-center justify-center gap-4 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Initializing...
+                </span>
+              ) : (
+                <>
+                  Save & Continue
+                  <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                </>
+              )}
+            </button>
           </form>
 
           <p className="text-[9px] font-bold text-gray-400 leading-relaxed uppercase opacity-40">
