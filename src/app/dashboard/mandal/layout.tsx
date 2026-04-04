@@ -14,8 +14,9 @@ export default async function MandalLayout({
   }
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard/mandal', icon: '📊' },
-    { label: 'Manage panchayaths', href: '/dashboard/mandal/manage-panchayaths', icon: '🏘️' },
+    { label: 'Overview', href: '/dashboard/mandal', icon: '📊' },
+    { label: 'Analytics', href: '/dashboard/mandal/analytics', icon: '📈' },
+    { label: 'Reports', href: '/dashboard/mandal/reports', icon: '📄' },
   ];
 
   const headerTitle = user.constituency?.name || 'Mandalam Admin';
@@ -25,7 +26,7 @@ export default async function MandalLayout({
     <DashboardLayoutClient
       navItems={navItems}
       headerTitle={headerTitle}
-      headerSubTitle={headerSubTitle}
+      role="MANDAL_ADMIN"
     >
       {children}
     </DashboardLayoutClient>

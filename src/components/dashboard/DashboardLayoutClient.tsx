@@ -1,140 +1,136 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { logout } from '@/app/actions/auth';
+import DashboardSidebar from './DashboardSidebar';
+import DashboardHeader from './DashboardHeader';
+import MobileNavigation from './MobileNavigation';
+import { 
+  LayoutDashboard, 
+  Users, 
+  MapPin, 
+  Settings, 
+  BarChart3, 
+  PieChart, 
+  FileText, 
+  ClipboardList, 
+  Activity, 
+  User,
+  CheckCircle2,
+  Building2,
+  FolderTree
+} from 'lucide-react';
 
-type NavItem = { label: string; href: string; icon: string };
+type NavItem = { label: string; href: string; icon: string | React.ElementType };
+
+interface DashboardLayoutClientProps {
+  children: React.ReactNode;
+  navItems: NavItem[];
+  headerTitle: string;
+  headerSubTitle?: string;
+  role?: string;
+}
 
 export function DashboardLayoutClient({ 
   children,
   navItems,
   headerTitle,
-  headerSubTitle,
-}: { 
-  children: React.ReactNode;
-  navItems: NavItem[];
-  headerTitle: string;
-  headerSubTitle: string;
-}) {
+  role = 'MANDAL_ADMIN',
+}: DashboardLayoutClientProps) {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Map internal database roles to UI roles
+  const mapRole = (r: string): 'super-admin' | 'mandal' | 'panchayath' | 'booth' => {
+    const roleUpper = r.toUpperCase();
+    if (roleUpper.includes('SUPER')) return 'super-admin';
+    if (roleUpper.includes('MANDAL')) return 'mandal';
+    if (roleUpper.includes('PANCHAYATH') || roleUpper.includes('WARD')) return 'panchayath';
+    if (roleUpper.includes('BOOTH')) return 'booth';
+    return 'mandal';
+  };
+
+  const uiRole = mapRole(role);
+
+  // Map icons to Lucide components if they are strings/emojis
+  const mappedNavItems = navItems.map(item => {
+    if (typeof item.icon !== 'string') return item as any;
+    
+    // Simple heuristic-based mapping for existing string icons
+    let Icon = LayoutDashboard;
+    const label = item.label.toLowerCase();
+    if (label.includes('dashboard') || label.includes('overview')) Icon = LayoutDashboard;
+    else if (label.includes('panchayath')) Icon = Building2;
+    else if (label.includes('mandal')) Icon = FolderTree;
+    else if (label.includes('candidate')) Icon = Users;
+    else if (label.includes('location')) Icon = MapPin;
+    else if (label.includes('setting')) Icon = Settings;
+    else if (label.includes('report')) Icon = FileText;
+    else if (label.includes('analytic')) Icon = BarChart3;
+    else if (label.includes('vote') || label.includes('mark')) Icon = CheckCircle2;
+    else if (label.includes('counting')) Icon = Activity;
+    else if (label.includes('profile')) Icon = User;
+    
+    return { ...item, icon: Icon };
+  });
+
+  if (!mounted) return <div className="min-h-screen bg-[#F9FAFB]" />;
 
   return (
-    <div className="min-h-screen bg-[#EEF2F6] text-gray-900 flex flex-col font-sans">
-      {/* ── Header ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 w-full bg-[#0B1229] shadow-lg shadow-black/10">
-        <div className="mx-auto px-6 lg:px-12">
-          <div className="flex justify-between items-center h-24">
-            {/* Brand Area */}
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col">
-                <span className="text-3xl font-black tracking-tight text-white uppercase leading-none">
-                  {headerTitle}
-                </span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                  IUML · REGIONAL ACCESS · ELECTIONPORTAL
-                </span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#F9FAFB] text-gray-900 font-sans selection:bg-emerald-100 selection:text-emerald-900">
+      {/* Desktop Sidebar */}
+      <DashboardSidebar 
+        role={uiRole} 
+        isCollapsed={isSidebarCollapsed} 
+        setIsCollapsed={setIsSidebarCollapsed} 
+        navItems={mappedNavItems}
+      />
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`relative text-sm font-bold transition-all py-1 ${
-                      isActive
-                        ? 'text-white'
-                        : 'text-gray-300 hover:text-white'
-                    }`}
-                  >
-                    {item.label}
-                    {isActive && (
-                      <span className="absolute -bottom-2 left-0 right-0 h-[3px] bg-cyan-400 rounded-full" />
-                    )}
-                  </Link>
-                );
-              })}
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="text-sm font-bold text-gray-300 hover:text-white transition-all ml-4"
-                >
-                  Sign Out
-                </button>
-              </form>
-            </nav>
+      {/* Main Content Area */}
+      <div 
+        className={`main-content min-h-screen flex flex-col ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}
+      >
+        {/* Top Header */}
+        <DashboardHeader 
+          title={headerTitle} 
+          role={uiRole} 
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+        />
 
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center p-3 rounded-2xl text-white bg-white/5 hover:bg-white/10 focus:outline-none transition-all"
-              >
-                <span className="sr-only">Open main menu</span>
-                <svg className={`${mobileMenuOpen ? 'hidden' : 'block'} h-6 w-6`} fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-                <svg className={`${mobileMenuOpen ? 'block' : 'hidden'} h-6 w-6`} fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+        {/* Content Wrapper */}
+        <main className="flex-1 p-4 lg:p-6 bg-[#F9FAFB]">
+          <div className="w-full h-full">
+            {/* Main Content Surface */}
+            <div className="relative rounded-3xl bg-white shadow-sm border border-gray-200/50 p-6 lg:p-8 min-h-[calc(100vh-140px)] w-full">
+              {children}
             </div>
           </div>
-        </div>
+        </main>
 
-        {/* Mobile Navigation Drawer */}
-        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:hidden border-t border-white/5 bg-[#0B1229] animate-in slide-in-from-top duration-300`}>
-          <div className="px-6 pt-4 pb-8 space-y-2">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-4 px-5 py-4 rounded-xl text-base font-bold transition-all ${
-                    isActive
-                      ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20'
-                      : 'text-gray-300 hover:bg-white/5'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-            <form action={logout} className="pt-2">
-              <button
-                type="submit"
-                className="w-full flex items-center gap-4 px-5 py-4 rounded-xl text-base font-bold text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-all"
-              >
-                Sign Out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Main Content Area ─────────────────────────────────────────── */}
-      <main className="flex-1">
-        <div className="mx-auto py-12 px-6 lg:px-12">
-          {children}
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-200">
-        <div className="mx-auto px-12">
-          <p className="text-center text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">
-            ElectionPortal · Secure Voter Management
+        {/* Footer (Simplified for dashboard) */}
+        <footer className="p-8 mt-auto hidden lg:block">
+          <p className="text-center text-[10px] font-black text-gray-300 tracking-[0.4em] uppercase">
+            VOTE-TRACK · Secure Election Management · (c) 2026
           </p>
-        </div>
-      </footer>
+        </footer>
+        
+        {/* Mobile Spacer (for bottom nav) */}
+        {uiRole === 'booth' && <div className="h-28 lg:hidden" />}
+      </div>
+
+      {/* Mobile Navigation (Drawer or Bottom Nav) */}
+      <MobileNavigation 
+        role={uiRole}
+        navItems={mappedNavItems}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
     </div>
   );
 }

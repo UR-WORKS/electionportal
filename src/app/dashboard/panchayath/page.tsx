@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { getDashboardUser } from '@/lib/dashboard-auth';
 import { prisma } from '@/lib/prisma';
 import { PanchayathDashboardClient } from '@/components/dashboard/PanchayathDashboardClient';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Role } from '@prisma/client';
 
 export default async function PanchayathDashboard() {
@@ -59,8 +58,8 @@ export default async function PanchayathDashboard() {
     party: c.abbrev,
     votes: c.marks.length,
     predicted: c._count.marks,
-    percentage: totalPolled > 0 ? ((c.marks.length / totalPolled) * 100).toFixed(1) : '0.0',
-    predictionPercentage: totalPredicted > 0 ? ((c._count.marks / totalPredicted) * 100).toFixed(1) : '0.0'
+    percentage: totalElectorate > 0 ? ((c.marks.length / totalElectorate) * 100).toFixed(1) : '0.0',
+    predictionPercentage: totalElectorate > 0 ? ((c._count.marks / totalElectorate) * 100).toFixed(1) : '0.0'
   })).sort((a, b) => b.votes - a.votes);
 
   // 3. Breakdown by Booth
@@ -102,16 +101,12 @@ export default async function PanchayathDashboard() {
       adminUsername: admin?.username || 'N/A',
       predicted: wPredicted,
       polled: wPolled,
-      percentage: wPredicted > 0 ? ((wPolled / wPredicted) * 100).toFixed(1) : '0.0'
+      percentage: w.totalVoters > 0 ? ((wPolled / w.totalVoters) * 100).toFixed(1) : '0.0'
     };
   });
 
   return (
     <>
-      <DashboardHeader
-        title="Panchayath Overview"
-        subtitle={`${user.candidate?.name || 'Candidate'} · ${user.panchayath?.name || 'Panchayath'}`}
-      />
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PanchayathDashboardClient
           totalPredicted={totalPredicted}

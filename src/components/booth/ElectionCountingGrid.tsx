@@ -194,23 +194,26 @@ export function ElectionCountingGrid({
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Type a serial number and hit submit for instant turnout recording.</p>
           </div>
 
-          <form onSubmit={handleFastEntrySubmit} className="flex gap-3">
-            <input
-              type="number"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              min="1"
-              max={totalVoters}
-              placeholder=""
-              value={fastEntry}
-              onChange={(e) => setFastEntry(e.target.value)}
-              className="flex-1 md:w-48 bg-gray-50 border border-gray-100 rounded-2xl px-8 py-4 text-base font-black text-gray-900 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner"
-            />
+          <form onSubmit={handleFastEntrySubmit} className="flex flex-col gap-4 w-full md:w-auto">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest ml-1">Enter Serial Number</label>
+              <input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                min="1"
+                max={totalVoters}
+                placeholder="---"
+                value={fastEntry}
+                onChange={(e) => setFastEntry(e.target.value)}
+                className="w-full md:w-64 bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-xl font-black text-gray-900 outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-inner text-center"
+              />
+            </div>
             <button
               type="submit"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-base shadow-xl shadow-emerald-600/20 active:scale-95 transition-all"
+              className="w-full md:w-64 bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-black uppercase text-base shadow-xl shadow-emerald-600/20 active:scale-95 transition-all"
             >
-              Submit
+              Confirm Vote
             </button>
           </form>
         </div>

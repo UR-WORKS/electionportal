@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://election.ontrends.in'),
 
   title: {
-    default: 'Election Precounting Portal',
-    template: '%s | Election Portal',
+    default: 'VOTE-TRACK',
+    template: '%s | VOTE-TRACK',
   },
 
   description:
@@ -38,17 +38,17 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: 'Election Precounting Portal',
+    title: 'VOTE-TRACK',
     description:
       'Secure and modern platform for digital elections and real-time counting.',
     url: 'https://election.ontrends.in',
-    siteName: 'Election Portal',
+    siteName: 'VOTE-TRACK',
     images: [
       {
-        url: '/og-image.png', // add this image in public/
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Election Portal',
+        alt: 'VOTE-TRACK',
       },
     ],
     locale: 'en_US',
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: 'summary_large_image',
-    title: 'Election Precounting Portal',
+    title: 'VOTE-TRACK',
     description:
       'Secure and modern platform for digital elections and real-time counting.',
     images: ['/og-image.png'],
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Election Portal',
+    title: 'VOTE-TRACK',
   },
 
   formatDetection: {

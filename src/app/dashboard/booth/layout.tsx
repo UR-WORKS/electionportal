@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
-import { BoothLayoutClient } from '@/components/booth/BoothLayoutClient';
+import { DashboardLayoutClient } from '@/components/dashboard/DashboardLayoutClient';
 
 export default async function BoothLayout({
   children,
@@ -39,12 +39,19 @@ export default async function BoothLayout({
     return <div className="p-10 text-center font-bold text-gray-400">Account Configuration Error. Contact Admin.</div>;
   }
 
+  const navItems = [
+    { label: 'Overview', href: '/dashboard/booth', icon: '📊' },
+    { label: 'Candidate Update', href: '/dashboard/booth/candidate-update', icon: '👤' },
+    { label: 'Election Counting', href: '/dashboard/booth/election-counting', icon: '🗳️' },
+  ];
+
   return (
-    <BoothLayoutClient 
-      boothInfo={{ number: user.booth.number, name: user.booth.name }} 
-      candidateAbbrev={user.candidate.abbrev}
+    <DashboardLayoutClient 
+      navItems={navItems}
+      headerTitle={`Booth ${user.booth.number}`}
+      role="BOOTH_ADMIN"
     >
       {children}
-    </BoothLayoutClient>
+    </DashboardLayoutClient>
   );
 }

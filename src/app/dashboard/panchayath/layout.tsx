@@ -15,8 +15,9 @@ export default async function panchayathLayout({
   }
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard/panchayath', icon: '📊' },
-    { label: 'Manage Booths', href: '/dashboard/panchayath/manage-booths', icon: '📍' },
+    { label: 'Overview', href: '/dashboard/panchayath', icon: '📊' },
+    { label: 'Analytics', href: '/dashboard/panchayath/analytics', icon: '📈' },
+    { label: 'Reports', href: '/dashboard/panchayath/reports', icon: '📄' },
   ];
 
   const headerTitle = user.panchayath?.name || 'panchayath Admin';
@@ -26,7 +27,7 @@ export default async function panchayathLayout({
     <DashboardLayoutClient
       navItems={navItems}
       headerTitle={headerTitle}
-      headerSubTitle={headerSubTitle}
+      role="PANCHAYATH_ADMIN"
     >
       {children}
     </DashboardLayoutClient>

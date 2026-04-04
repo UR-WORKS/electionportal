@@ -19,13 +19,13 @@ const IconSearch = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 );
 
-const Badge = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+export const Badge = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${className}`}>
     {children}
   </span>
 );
 
-const Card = ({ children, title, action, className = "" }: { children: React.ReactNode, title?: string, action?: React.ReactNode, className?: string }) => (
+export const Card = ({ children, title, action, className = "" }: { children: React.ReactNode, title?: string, action?: React.ReactNode, className?: string }) => (
   <div className={`bg-white border border-slate-200 rounded-2xl shadow-sm p-6 ${className}`}>
     {(title || action) && (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
@@ -68,14 +68,16 @@ export function MandalDashboardClient({
 
   const filteredPredicted = searchTerm ? filteredpanchayaths.reduce((acc, p) => acc + p.predicted, 0) : totalPredicted;
   const filteredPolled = searchTerm ? filteredpanchayaths.reduce((acc, p) => acc + p.polled, 0) : totalPolled;
+  const filteredElectorate = searchTerm ? filteredpanchayaths.reduce((acc, p) => acc + p.totalVoters, 0) : totalElectorate;
+  
   const pending = filteredPredicted - filteredPolled;
-  const percentage = filteredPredicted > 0 ? ((filteredPolled / filteredPredicted) * 100).toFixed(1) : '0.0';
+  const percentage = filteredElectorate > 0 ? ((filteredPolled / filteredElectorate) * 100).toFixed(1) : '0.0';
 
   const stats = [
-    { label: 'TOTAL PREDICTED', value: filteredPredicted.toLocaleString(), icon: '📊', trend: trends.predicted },
-    { label: 'TOTAL POLLED', value: filteredPolled.toLocaleString(), icon: '✅', trend: trends.polled },
-    { label: 'PENDING', value: pending.toLocaleString(), icon: '⏳', trend: trends.pending },
-    { label: 'POLLING %', value: `${percentage}%`, icon: '📈', color: 'emerald', border: true },
+    { label: 'TOTAL VOTERS', value: filteredElectorate.toLocaleString() },
+    { label: 'TOTAL PREDICTED', value: filteredPredicted.toLocaleString() },
+    { label: 'TOTAL POLLED', value: filteredPolled.toLocaleString() },
+    { label: 'POLLING %', value: `${percentage}%`, color: 'emerald', border: true },
   ];
 
   return (
@@ -84,17 +86,9 @@ export function MandalDashboardClient({
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <Card key={i} className={`${stat.border ? 'border-emerald-200 ring-4 ring-emerald-50' : ''}`}>
-            <div className="flex justify-between items-start mb-6">
-              <span className="text-3xl filter grayscale opacity-20">{stat.icon}</span>
-              {stat.trend && (
-                <Badge className={`${Number(stat.trend) >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                  {Number(stat.trend) >= 0 ? '+' : ''}{stat.trend}% from last hour
-                </Badge>
-              )}
-            </div>
+          <Card key={i} className={`${stat.border ? 'border-emerald-200 ring-4 ring-emerald-50' : ''} h-32 flex flex-col justify-center`}>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
-            <h4 className="text-3xl font-black text-slate-900 mt-1">{stat.value}</h4>
+            <h4 className="text-4xl font-black text-slate-900 mt-1">{stat.value}</h4>
           </Card>
         ))}
       </div>

@@ -1,75 +1,143 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  Search,
+  Plus,
+  RefreshCcw,
+  Menu,
+  ShieldCheck,
+  BarChart3,
+  UserCheck,
+  X,
+  Clock,
+  Calendar,
+  Vote
+} from 'lucide-react';
 
 interface DashboardHeaderProps {
   title: string;
-  subtitle: string;
+  role: 'super-admin' | 'mandal' | 'panchayath' | 'booth';
+  onMenuClick?: () => void;
 }
 
-export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
-  const router = useRouter();
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState<string>('');
+export default function DashboardHeader({ title, role, onMenuClick }: DashboardHeaderProps) {
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    setLastRefreshed(new Date().toLocaleString());
-  }, []);
+  const handleSync = () => {
+    setIsSyncing(true);
+    // Simulate sync delay
+    setTimeout(() => {
+      setLastSyncTime(new Date());
+      setIsSyncing(false);
+    }, 800);
+  };
 
-  const handleManualRefresh = () => {
-    setIsRefreshing(true);
-    router.refresh();
+  const getRoleIcon = () => {
+    switch (role) {
+      case 'super-admin': return <ShieldCheck size={18} />;
+      case 'mandal':
+      case 'panchayath': return <BarChart3 size={18} />;
+      case 'booth': return <UserCheck size={18} />;
+      default: return null;
+    }
+  };
 
-    // Update the timestamp
-    setLastRefreshed(new Date().toLocaleString());
-
-    // Simulate a brief loading state for visual feedback
-    setTimeout(() => setIsRefreshing(false), 800);
+  const getRoleLabel = () => {
+    switch (role) {
+      case 'super-admin': return 'Super Admin';
+      case 'mandal': return 'Mandalam Admin';
+      case 'panchayath': return 'Panchayath Admin';
+      case 'booth': return 'Booth Admin';
+      default: return 'User';
+    }
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 p-6 bg-white/90 backdrop-blur-md rounded-2xl border border-gray-100 shadow-xl ring-1 ring-black/5">
-      <div className="mb-4 md:mb-0">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-black bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-700 bg-clip-text text-transparent tracking-tight">
-            {title}
-          </h1>
-        </div>
-        <div className="flex flex-col gap-1 mt-2">
-          <p className="text-gray-500 font-bold text-xs uppercase tracking-widest whitespace-pre-line leading-relaxed">
-            {subtitle}
-          </p>
-          {lastRefreshed && (
-            <p className="text-gray-400 font-medium text-[10px] uppercase tracking-wider flex items-center gap-1.5 mt-1">
-              <span className="w-1 h-1 rounded-full bg-gray-300" />
-              Last Refreshed: {lastRefreshed}
-            </p>
-          )}
-        </div>
-      </div>
+    <header className="fixed top-0 right-0 left-0 lg:left-[280px] z-30 h-[72px] glass-header flex items-center justify-between px-6 lg:px-8 transition-all duration-300 ease-in-out gap-4">
 
-      <div className="flex items-center gap-4">
+      {/* Left: App Branding (Mobile/Desktop Title) */}
+      <div className="flex items-center gap-4 flex-1 lg:flex-none">
         <button
-          onClick={handleManualRefresh}
-          className={`group flex items-center gap-2.5 px-5 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl transition-all duration-300 shadow-sm shadow-emerald-500/5 active:scale-95 ${isRefreshing ? 'opacity-50 cursor-wait' : ''}`}
+          onClick={onMenuClick}
+          className="lg:hidden p-2 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-emerald-600 transition-all"
         >
-          <span className={`text-sm ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`}>
-            {isRefreshing ? '⌛' : '🔄'}
-          </span>
-          <span className="text-xs font-black uppercase tracking-[0.1em]">
-            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
-          </span>
+          <Menu size={24} />
         </button>
 
-        <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-          <div className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        <div className="flex flex-col lg:ml-4">
+          {/* Mobile Only: App Name */}
+          <div className="lg:hidden flex items-center gap-2 mb-0.5">
+            <div className="w-6 h-6 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+              <Vote size={14} />
+            </div>
+            <span className="text-sm font-black tracking-tighter text-gray-900 uppercase">
+              VOTE<span className="text-emerald-600">-TRACK</span>
+            </span>
           </div>
-          <span className="text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em]">Live Status</span>
+
+          <h1 className="text-lg lg:text-xl font-black text-gray-900 tracking-tight leading-none uppercase">
+            {title}
+          </h1>
+
+          <div className="lg:hidden flex items-center gap-1.5 mt-1">
+            <span className="text-emerald-600">{getRoleIcon()}</span>
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+              {getRoleLabel()}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Right: Date, Time, Sync, Profile */}
+      <div className="flex items-center gap-2 lg:gap-6">
+
+        {/* Last Synced Info (Desktop only) */}
+        <div className="hidden xl:flex items-center gap-4 px-5 py-2.5 bg-gray-50/80 rounded-2xl border border-gray-100 shadow-sm transition-all">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2 text-gray-400 mb-0.5">
+              <Clock size={12} strokeWidth={3} className="text-emerald-600/50" />
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none">Last Synced</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-black text-gray-900 tabular-nums">
+                {lastSyncTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                {lastSyncTime.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Sync Data Action */}
+        <button
+          onClick={handleSync}
+          disabled={isSyncing}
+          className={`flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-2xl hover:bg-blue-500 transition-all active:scale-95 shadow-lg shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <RefreshCcw size={18} className={isSyncing ? 'animate-spin' : ''} />
+          <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Data'}</span>
+        </button>
+
+        {/* Desktop Role Badge */}
+        <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-emerald-50 border border-emerald-100/50 rounded-2xl">
+          <div className="w-8 h-8 rounded-full bg-emerald-200 flex items-center justify-center text-emerald-700">
+            {getRoleIcon()}
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-black text-emerald-800 uppercase tracking-tight leading-none">
+              {getRoleLabel()}
+            </span>
+            <span className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest leading-none">
+              Active Session
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </header>
   );
 }

@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { getDashboardUser } from '@/lib/dashboard-auth';
 import { prisma } from '@/lib/prisma';
 import { MandalDashboardClient } from '@/components/dashboard/MandalDashboardClient';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { Role } from '@prisma/client';
 
 export default async function MandalDashboard() {
@@ -76,8 +75,8 @@ export default async function MandalDashboard() {
     party: c.abbrev,
     votes: c.marks.length,
     predicted: c._count.marks,
-    percentage: totalPolled > 0 ? ((c.marks.length / totalPolled) * 100).toFixed(1) : '0.0',
-    predictionPercentage: totalPredicted > 0 ? ((c._count.marks / totalPredicted) * 100).toFixed(1) : '0.0'
+    percentage: totalElectorate > 0 ? ((c.marks.length / totalElectorate) * 100).toFixed(1) : '0.0',
+    predictionPercentage: totalElectorate > 0 ? ((c._count.marks / totalElectorate) * 100).toFixed(1) : '0.0'
   })).sort((a, b) => b.votes - a.votes);
 
   // Calculate Trends
@@ -140,16 +139,12 @@ export default async function MandalDashboard() {
       adminUsername: admin?.username || 'N/A',
       predicted: pPredicted,
       polled: pPolled,
-      percentage: pPredicted > 0 ? ((pPolled / pPredicted) * 100).toFixed(1) : '0.0'
+      percentage: pTotalVoters > 0 ? ((pPolled / pTotalVoters) * 100).toFixed(1) : '0.0'
     };
   });
 
   return (
     <>
-      <DashboardHeader 
-        title="Mandalam Overview" 
-        subtitle={`${user.candidate?.name || 'Candidate'} · ${user.constituency?.name || 'Mandalam'}\nTotal Electorate: ${totalElectorate}`} 
-      />
       <MandalDashboardClient
         totalPredicted={totalPredicted}
         totalPolled={totalPolled}

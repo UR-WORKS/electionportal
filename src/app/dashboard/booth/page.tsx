@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/prisma';
 import { VoterCountPrompt } from '@/components/dashboard/VoterCountPrompt';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import Link from 'next/link';
 
 export const metadata = {
@@ -86,40 +85,25 @@ export default async function BoothDashboard() {
   }).sort((a, b) => b.count - a.count);
 
   const stats = [
-    { label: 'Booth Polled', value: boothVotedCount, icon: '📮', color: 'gray' },
-    { label: 'Predicted (Us)', value: predictedCount, icon: '📈', color: 'blue' },
-    { label: 'Voted (Us)', value: votedCount, icon: '✅', color: 'emerald' },
-    { label: 'Pending (Us)', value: pendingCount, icon: '⏳', color: 'amber' },
-    { label: 'Polling %', value: `${pollingPercentage}%`, icon: '📊', color: 'teal' },
+    { label: 'TOTAL VOTERS', value: totalVotersVal.toLocaleString() },
+    { label: 'PREDICTED (US)', value: predictedCount.toLocaleString() },
+    { label: 'VOTED (US)', value: votedCount.toLocaleString() },
+    { label: 'PERFORMANCE %', value: `${pollingPercentage}%`, color: 'emerald', border: true }, // Polling % relative to electorate
   ];
-
-  const colorMap: any = {
-    gray: 'text-gray-600 bg-gray-100',
-    blue: 'text-blue-600 bg-blue-50',
-    emerald: 'text-emerald-600 bg-emerald-50',
-    amber: 'text-amber-600 bg-amber-50',
-    teal: 'text-teal-600 bg-teal-50',
-  };
 
   return (
     <div className="space-y-12">
       <VoterCountPrompt boothId={user.boothId} initialTotalVoters={user.booth.totalVoters} />
 
-      <DashboardHeader
-        title="Dashboard Overview"
-        subtitle={`Booth ${user.booth.number} · ${user.candidate.abbrev}\n${user.booth.name}`}
-      />
-
       {/* Top Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
-            className="group p-8 rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300"
+            className={`group p-8 rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 h-32 flex flex-col justify-center ${stat.border ? 'ring-4 ring-emerald-50 border-emerald-200' : ''}`}
           >
-            <div className={`text-2xl mb-6 p-3 rounded-2xl w-fit ${colorMap[stat.color]}`}>{stat.icon}</div>
-            <div className="text-4xl font-black text-gray-900 mb-1 tracking-tighter">{stat.value}</div>
-            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">{stat.label}</div>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
+            <h4 className="text-4xl font-black text-gray-900 tracking-tighter">{stat.value}</h4>
           </div>
         ))}
       </div>
@@ -206,41 +190,7 @@ export default async function BoothDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
-        {[
-          {
-            title: 'Candidate Update',
-            desc: "Map your candidate's voters and predicted affiliations.",
-            href: '/dashboard/booth/candidate-update',
-            icon: '📝',
-            accent: 'blue'
-          },
-          {
-            title: 'Election Counting',
-            desc: "Monitor live voter turnout and record polled citizens.",
-            href: '/dashboard/booth/election-counting',
-            icon: '🗳️',
-            accent: 'emerald'
-          }
-        ].map((link) => (
-          <Link
-            key={link.title}
-            href={link.href}
-            className="group p-8 rounded-[2.5rem] bg-white border border-gray-100 hover:border-emerald-600/20 hover:bg-gray-50/50 transition-all flex items-center justify-between overflow-hidden relative shadow-sm hover:shadow-xl hover:shadow-emerald-900/5"
-          >
-            <div className="flex items-center gap-6 relative z-10">
-              <div className="h-16 w-16 rounded-3xl bg-gray-50 flex items-center justify-center text-3xl group-hover:bg-white group-hover:scale-110 transition-all duration-500 shadow-sm">{link.icon}</div>
-              <div className="space-y-1">
-                <h3 className="text-xl font-black text-gray-900 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">{link.title}</h3>
-                <p className="text-xs font-bold text-gray-400 group-hover:text-gray-500 max-w-[200px] leading-relaxed uppercase tracking-wider">{link.desc}</p>
-              </div>
-            </div>
-            <span className="text-2xl font-black text-gray-200 group-hover:text-emerald-600 group-hover:translate-x-3 transition-all duration-500 select-none relative z-10">→</span>
-            {/* Hover Decor */}
-            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-48 h-48 bg-emerald-600/5 rounded-full blur-2xl group-hover:bg-emerald-600/10 transition-all" />
-          </Link>
-        ))}
-      </div>
+      {/* Comparison section removed as it's redundant with sidebar links */}
     </div>
   );
 }

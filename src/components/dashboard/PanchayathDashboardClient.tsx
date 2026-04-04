@@ -71,14 +71,16 @@ export function PanchayathDashboardClient({
 
   const filteredPredicted = searchTerm ? filteredBooths.reduce((acc, w) => acc + w.predicted, 0) : totalPredicted;
   const filteredPolled = searchTerm ? filteredBooths.reduce((acc, w) => acc + w.polled, 0) : totalPolled;
+  const filteredElectorate = searchTerm ? filteredBooths.reduce((acc, w) => acc + w.totalVoters, 0) : totalElectorate;
+  
   const pending = filteredPredicted - filteredPolled;
-  const percentage = filteredPredicted > 0 ? ((filteredPolled / filteredPredicted) * 100).toFixed(1) : '0.0';
+  const percentage = filteredElectorate > 0 ? ((filteredPolled / filteredElectorate) * 100).toFixed(1) : '0.0';
 
   const stats = [
-    { label: 'TOTAL PREDICTED', value: filteredPredicted.toLocaleString(), icon: '📊' },
-    { label: 'TOTAL POLLED', value: filteredPolled.toLocaleString(), icon: '✅' },
-    { label: 'PENDING', value: pending.toLocaleString(), icon: '⏳' },
-    { label: 'POLLING %', value: `${percentage}%`, icon: '📈', color: 'emerald', border: true },
+    { label: 'TOTAL VOTERS', value: filteredElectorate.toLocaleString() },
+    { label: 'TOTAL PREDICTED', value: filteredPredicted.toLocaleString() },
+    { label: 'TOTAL POLLED', value: filteredPolled.toLocaleString() },
+    { label: 'POLLING %', value: `${percentage}%`, color: 'emerald', border: true },
   ];
 
   return (
@@ -87,12 +89,9 @@ export function PanchayathDashboardClient({
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <Card key={i} className={`${stat.border ? 'border-emerald-200 ring-4 ring-emerald-50' : ''}`}>
-            <div className="flex justify-between items-start mb-6">
-              <span className="text-3xl filter grayscale opacity-20">{stat.icon}</span>
-            </div>
+          <Card key={i} className={`${stat.border ? 'border-emerald-200 ring-4 ring-emerald-50' : ''} h-32 flex flex-col justify-center`}>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</p>
-            <h4 className="text-3xl font-black text-slate-900 mt-1">{stat.value}</h4>
+            <h4 className="text-4xl font-black text-slate-900 mt-1">{stat.value}</h4>
           </Card>
         ))}
       </div>

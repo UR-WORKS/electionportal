@@ -3,18 +3,23 @@
 :root {
   --background: #F9FAFB;
   --foreground: #111827;
-  --primary: #10B981; /* Emerald Green as primary accent */
+  --primary: #10B981; /* Emerald Green */
   --primary-foreground: #ffffff;
-  --secondary: #FFFFFF;
-  --secondary-foreground: #111827;
-  --accent: #3B82F6; /* Light Blue as secondary accent */
-  --accent-foreground: #ffffff;
+  --secondary: #3B82F6; /* Light Blue */
+  --secondary-foreground: #ffffff;
+  --accent: #F3F4F6;
+  --accent-foreground: #111827;
   --card: #FFFFFF;
   --card-foreground: #111827;
-  --border: #F3F4F6;
+  --border: #E5E7EB;
   --input: #F3F4F6;
   --ring: #10B981;
-  --radius: 1rem;
+  --radius: 0.75rem;
+
+  /* Sidebar Variables */
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 80px;
+  --header-height: 72px;
 }
 
 body {
@@ -49,5 +54,39 @@ body {
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-gray-200 rounded-full;
+  }
+
+  /* Layout Utilities */
+  .main-content {
+    @apply transition-all duration-300 ease-in-out;
+    padding-top: var(--header-height);
+  }
+
+  @media (min-width: 1024px) {
+    .main-content {
+      padding-left: var(--sidebar-width);
+    }
+    .main-content.sidebar-collapsed {
+      padding-left: var(--sidebar-collapsed-width);
+    }
+  }
+
+  /* Glassmorphism */
+  .glass-header {
+    @apply bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-30;
+  }
+
+  /* Nav Link Hover */
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 font-medium transition-all;
+  }
+  .nav-link:hover {
+    @apply bg-gray-50 text-emerald-600;
+  }
+  .nav-link:active {
+    @apply scale-95;
+  }
+  .nav-link.active {
+    @apply bg-emerald-50 text-emerald-600 font-semibold border-l-4 border-emerald-600 rounded-l-none;
   }
 }
